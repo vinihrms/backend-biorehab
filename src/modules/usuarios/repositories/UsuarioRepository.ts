@@ -23,6 +23,10 @@ class UsuarioRepository extends BaseRepository {
     });
   }
 
+  async findById(id: number): Promise<Usuario | null> {
+    return this.prisma.usuario.findUnique({ where: { id } });
+  }
+
   async create(data: Prisma.UsuarioCreateInput): Promise<UsuarioPublic> {
     return this.prisma.usuario.create({
       data,

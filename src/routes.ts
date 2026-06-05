@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import type { Response } from 'express';
 import autenticacaoMiddleware, { RequestAutenticado } from './middlewares/auth.middleware';
-import usuarioController from './modules/usuarios/controllers/UsuarioController';
+import authController from './modules/auth/controllers/AuthController';
 import asyncHandler from './utils/async-handler';
 import { HttpStatus } from './utils/http-status';
 import { sendSuccess } from './utils/response';
+import estudoController from './modules/estudos/controllers/EstudoController';
 
 const routes = Router();
 
-routes.post('/usuarios', asyncHandler(usuarioController.cadastrar));
-routes.post('/login', asyncHandler(usuarioController.login));
+routes.post('/api/auth/cadastro', asyncHandler(authController.cadastrar));
+routes.post('/api/auth/login', asyncHandler(authController.login));
 
-routes.get('/admin', autenticacaoMiddleware, (req: RequestAutenticado, res: Response) => {
+routes.get('/api/auth/me', autenticacaoMiddleware, (req: RequestAutenticado, res: Response) => {
   return sendSuccess(
     res,
     {
@@ -21,5 +22,8 @@ routes.get('/admin', autenticacaoMiddleware, (req: RequestAutenticado, res: Resp
     HttpStatus.OK
   );
 });
+
+// ROTAS REFERENTES A ESTUDOS
+routes.post('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.criar))
 
 export default routes;

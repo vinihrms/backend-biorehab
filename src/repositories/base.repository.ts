@@ -4,7 +4,7 @@ import prisma from '../config/prisma';
 export abstract class BaseRepository {
   protected readonly prisma: PrismaClient;
 
-  protected constructor() {
+  public constructor() {
     this.prisma = prisma;
   }
 }
