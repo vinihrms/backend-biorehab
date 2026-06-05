@@ -1,0 +1,189 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum DataType {
+  numeric
+  integer
+  boolean
+  text
+  choice
+}
+
+enum Papel {
+  owner
+  collector
+  viewer
+}
+
+model Estudo {
+  id          Int                  @id @default(autoincrement())
+  nome        String               @db.VarChar(100)
+  sigla       String?  @db.VarChar(10)
+  descricao   String?              @db.Text
+  ativo       Int                  @default(1) @db.TinyInt
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  deletedAt   DateTime?            @map("deleted_at")
+  
+  tipoVisitas   TipoVisita[]
+  variaveis     Variavel[]
+  participacoes ParticipacaoEstudo[]
+  permissoes    PermissaoEstudo[]
+  visitas       Visita[]
+
+  @@map("estudos")
+}
+
+model Usuario {
+  id         Int               @id @default(autoincrement())
+  email      String            @unique @db.VarChar(254)
+  password   String            @db.VarChar(255)
+  ra         String            @unique @db.VarChar(6)
+  name       String            @default("") @db.VarChar(150)
+  isActive   Int               @default(1) @db.TinyInt @map("is_active")
+  isAdmin    Boolean           @default(false) @map("is_admin")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  deletedAt  DateTime?         @map("deleted_at")
+
+  visitasCriadas  Visita[]
+  medicoesCriadas Medicao[]
+  permissoes      PermissaoEstudo[]
+
+  @@map("usuarios")
+}
+
+model Participante {
+  id         Int                  @id @default(autoincrement())
+  name       String               @db.VarChar(30)
+  telefone   String?              @db.VarChar(20)
+  nascimento DateTime?            @db.Date
+  ativo      Int                  @default(1) @db.TinyInt
+  createdAt  DateTime             @default(now()) @map("created_at")
+  updatedAt  DateTime             @updatedAt @map("updated_at")
+  deletedAt  DateTime?            @map("deleted_at")
+
+  participacoes ParticipacaoEstudo[]
+  visitas       Visita[]
+
+  @@map("participantes")
+}
+
+model TipoVisita {
+  id        Int       @id @default(autoincrement())
+  nome      String    @db.VarChar(100)
+  estudoId  Int       @map("estudo_id")
+  ativo     Int       @default(1) @db.TinyInt
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  estudo    Estudo    @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  visitas   Visita[]
+
+  @@map("tipo_visitas")
+}
+
+model Variavel {
+  id        Int       @id @default(autoincrement())
+  nome      String    @db.VarChar(100)
+  unidade   String?   @db.VarChar(20)
+  dataType  DataType  @default(numeric) @map("data_type")
+  options   String?   @db.Text
+  estudoId  Int       @map("estudo_id")
+  ativo     Int       @default(1) @db.TinyInt
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  estudo    Estudo    @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  medicoes  Medicao[]
+
+  @@map("variaveis")
+}
+
+model Visita {
+  id             Int          @id @default(autoincrement())
+  data           DateTime     @db.Date
+  participanteId Int          @map("participante_id")
+  estudoId       Int          @map("estudo_id")
+  tipoVisitaId   Int          @map("tipo_visita_id")
+  createdBy      Int          @map("created_by")
+  notes          String?      @db.Text
+  ativo          Int          @default(1) @db.TinyInt
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
+
+  estudo         Estudo       @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  participante   Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+  tipoVisita     TipoVisita   @relation(fields: [tipoVisitaId], references: [id], onDelete: Cascade)
+  usuario        Usuario      @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  medicoes       Medicao[]
+
+  @@map("visitas")
+}
+
+model ParticipacaoEstudo {
+  id             Int          @id @default(autoincrement())
+  estudoId       Int          @map("estudo_id")
+  participanteId Int          @map("participante_id")
+
+  codigo         String?      @db.VarChar(20)
+
+  
+
+  ativo          Int          @default(1) @db.TinyInt
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
+
+  estudo         Estudo       @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  participante   Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+
+  @@unique([estudoId, participanteId])
+  @@unique([estudoId, codigo])
+  @@map("participacoes_estudo")
+}
+
+model PermissaoEstudo {
+  id        Int       @id @default(autoincrement())
+  papel     Papel     @default(viewer)
+  estudoId  Int       @map("estudo_id")
+  usuarioId Int       @map("usuario_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  estudo    Estudo    @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([estudoId, usuarioId])
+  @@map("permissoes_estudo")
+}
+
+model Medicao {
+  id         Int       @id @default(autoincrement())
+  variavelId Int       @map("variavel_id")
+  visitaId   Int       @map("visita_id")
+  valorNum   Decimal?  @db.Decimal(10, 4) @map("valor_num")
+  valorText  String?   @db.Text @map("valor_text")
+  lado       String?   @db.VarChar(1)
+  createdBy  Int       @map("created_by")
+  ativo      Int       @default(1) @db.TinyInt
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  variavel   Variavel     @relation(fields: [variavelId], references: [id], onDelete: Cascade)
+  visita     Visita       @relation(fields: [visitaId], references: [id], onDelete: Cascade)
+  usuario    Usuario      @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+
+  @@map("medicoes")
+}
