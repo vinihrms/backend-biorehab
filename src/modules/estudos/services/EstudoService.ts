@@ -24,9 +24,9 @@ class EstudoService extends BaseService {
             throw new AppError('CONFLICT', 'Este estudo já existe.', HttpStatus.CONFLICT);
         }
 
-        if(data.sigla){
+        if (data.sigla) {
             const siglaExistente = await this.estudoRepository.findBySigla(data.sigla);
-            if(siglaExistente){
+            if (siglaExistente) {
                 throw new AppError(
                     'CONFLICT',
                     'Esta sigla já está em uso.',
@@ -83,9 +83,9 @@ class EstudoService extends BaseService {
             }
         }
 
-        if(data.sigla){
+        if (data.sigla) {
             const siglaExistente = await this.estudoRepository.findBySigla(data.sigla);
-            if(siglaExistente && siglaExistente.id != estudoId){
+            if (siglaExistente && siglaExistente.id != estudoId) {
                 throw new AppError(
                     'CONFLICT',
                     'Esta sigla já está em uso.',
@@ -107,6 +107,34 @@ class EstudoService extends BaseService {
         }
 
         return this.estudoRepository.softDelete(estudoId);
+    }
+
+
+    async buscarExcluidos(userId: number) {
+        await this.adminAuthorization.isAdmin(userId);
+        return this.estudoRepository.findAllExcluidos();
+    }
+
+
+
+    async restaurarEstudo(userId: number, estudoId: number) {
+        await this.adminAuthorization.isAdmin(userId);
+        const estudo = await this.estudoRepository.findByIdIncludingDeleted(estudoId);
+        if (!estudo) {
+            throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
+        }
+        
+        if (estudo.deletedAt === null) {
+            throw new AppError(
+                'STUDY_ALREADY_ACTIVE',
+                'Este estudo já está ativo.',
+                HttpStatus.CONFLICT
+            );
+        }
+
+        return this.estudoRepository.restaura(estudoId);
+
+
     }
 }
 

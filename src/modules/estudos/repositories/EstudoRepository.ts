@@ -25,6 +25,7 @@ class EstudoRepository extends BaseRepository {
     return this.prisma.estudo.findMany({ where: { deletedAt: null } });
   }
 
+
   async findById(estudoId: number): Promise<Estudo | null> {
     return this.prisma.estudo.findFirst({ where: { id: estudoId, deletedAt: null } })
   }
@@ -62,6 +63,32 @@ class EstudoRepository extends BaseRepository {
       }
     });
   }
+
+  async findByIdIncludingDeleted(estudoId: number): Promise<Estudo | null> {
+  return this.prisma.estudo.findUnique({
+    where: {
+      id: estudoId
+    }
+  });
+}
+
+  async findAllExcluidos(): Promise<Estudo[]> {
+    return this.prisma.estudo.findMany({ where: { deletedAt: { not: null } } });
+  }
+
+
+
+  async restaura(estudoId: number) {
+    return this.prisma.estudo.update({
+      where: {
+        id: estudoId
+      },
+      data: {
+        deletedAt: null
+      }
+    });
+  }
+
 
 }
 

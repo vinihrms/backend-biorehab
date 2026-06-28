@@ -36,7 +36,7 @@ class EstudoController {
   }
 
   buscarPorId = async (req: Request, res: Response): Promise<Response> => {
-    const estudoId = Number(req.params.id)
+    const estudoId = Number(req.params.estudoId)
 
     const estudo = await this.estudoService.getById(req.usuarioLogado.id, estudoId);
     return sendSuccess(
@@ -50,9 +50,8 @@ class EstudoController {
   }
 
   atualizar = async (req: Request, res: Response): Promise<Response> => {
-    const estudoId = Number(req.params.id)
+    const estudoId = Number(req.params.estudoId)
     const dadosValidados = atualizarEstudoSchema.parse(req.body)
-
 
     const estudo = await this.estudoService.atualizarEstudo(req.usuarioLogado.id, estudoId, dadosValidados);
     return sendSuccess(
@@ -66,20 +65,44 @@ class EstudoController {
   }
 
   deletar = async (req: Request, res: Response): Promise<Response> => {
-    const estudoId = Number(req.params.id)
-    const estudo = await this.estudoService.deletarEstudo(req.usuarioLogado.id, estudoId);
+    const estudoId = Number(req.params.estudoId)
+    await this.estudoService.deletarEstudo(req.usuarioLogado.id, estudoId);
 
     return sendSuccess(
       res,
       {
-        data: estudo,
+        data: null,
         message: 'Estudo deletado com sucesso!'
       },
       HttpStatus.OK
     );
   }
 
+  listarExcluidos = async (req: Request, res: Response): Promise<Response> => {
+    const estudos = await this.estudoService.buscarExcluidos(req.usuarioLogado.id);
+    return sendSuccess(
+      res,
+      {
+        data: estudos,
+        message: 'Estudos deletados listados com sucesso!'
+      },
+      HttpStatus.OK
+    );
+  }
   
+  restaurar = async (req: Request, res: Response): Promise<Response> => {
+    const estudoId = Number(req.params.estudoId)
 
+    const estudo = await this.estudoService.restaurarEstudo(req.usuarioLogado.id, estudoId);
+    return sendSuccess(
+      res,
+      {
+        data: estudo,
+        message: 'Estudo listado com sucesso!'
+      },
+      HttpStatus.OK
+    );
+  }
+  
 }
 export default new EstudoController();
