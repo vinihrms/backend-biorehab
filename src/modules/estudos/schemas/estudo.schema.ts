@@ -6,5 +6,10 @@ export const criarEstudoSchema = z.object({
   descricao: z.string().optional(),
 });
 
+export const atualizarEstudoSchema = criarEstudoSchema.partial();
+
 export type CriarEstudoInput =
   z.infer<typeof criarEstudoSchema>;
+
+export type AtualizarEstudoInput =
+  z.infer<typeof atualizarEstudoSchema>;

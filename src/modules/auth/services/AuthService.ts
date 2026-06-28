@@ -25,7 +25,7 @@ class AuthService extends BaseService {
     const usuarioExistente = await this.usuarioRepository.findByEmailOrRa(data.email, data.ra);
 
     if (usuarioExistente) {
-      throw new AppError('USER_ALREADY_EXISTS', 'Email or RA already registered.', HttpStatus.CONFLICT);
+      throw new AppError('USER_ALREADY_EXISTS', 'Email ou RA já registrados.', HttpStatus.CONFLICT);
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -44,13 +44,13 @@ class AuthService extends BaseService {
     const usuario = await this.usuarioRepository.findByEmail(data.email);
 
     if (!usuario) {
-      throw new AppError('INVALID_CREDENTIALS', 'Invalid email or password.', HttpStatus.UNAUTHORIZED);
+      throw new AppError('INVALID_CREDENTIALS', 'Email ou senha inválidas.', HttpStatus.UNAUTHORIZED);
     }
 
     const senhaValida = await bcrypt.compare(data.password, usuario.password);
 
     if (!senhaValida) {
-      throw new AppError('INVALID_CREDENTIALS', 'Invalid email or password.', HttpStatus.UNAUTHORIZED);
+      throw new AppError('INVALID_CREDENTIALS', 'Email ou senha inválidas.', HttpStatus.UNAUTHORIZED);
     }
 
     const secret = process.env.JWT_SECRET;

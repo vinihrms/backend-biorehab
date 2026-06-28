@@ -25,5 +25,8 @@ routes.get('/api/auth/me', autenticacaoMiddleware, (req: RequestAutenticado, res
 
 // ROTAS REFERENTES A ESTUDOS
 routes.post('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.criar))
-
+routes.get('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.list))
+routes.get('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.buscarPorId))
+routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.atualizar))
+routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar))
 export default routes;
