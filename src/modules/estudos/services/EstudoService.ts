@@ -5,8 +5,9 @@ import { AppError } from '../../../errors/app-error';
 import { HttpStatus } from '../../../utils/http-status';
 import EstudoRepository from '../repositories/EstudoRepository';
 import PermissaoEstudoRepository from '../../permissao_estudos/repositories/PermissaoEstudoRepository';
-import { Papel } from '@prisma/client';
+import { Papel, Estudo } from '@prisma/client';
 import AdminAuthorization from '../../../authorization/AdminAuthorization';
+import { number } from 'zod';
 
 
 class EstudoService extends BaseService {
@@ -21,6 +22,17 @@ class EstudoService extends BaseService {
 
         if (estudoExistente) {
             throw new AppError('CONFLICT', 'Este estudo já existe.', HttpStatus.CONFLICT);
+        }
+
+        if(data.sigla){
+            const siglaExistente = await this.estudoRepository.findBySigla(data.sigla);
+            if(siglaExistente){
+                throw new AppError(
+                    'CONFLICT',
+                    'Esta sigla já está em uso.',
+                    HttpStatus.CONFLICT
+                );
+            }
         }
 
         const estudo = await this.estudoRepository.create(data);
@@ -73,7 +85,7 @@ class EstudoService extends BaseService {
 
         if(data.sigla){
             const siglaExistente = await this.estudoRepository.findBySigla(data.sigla);
-            if (siglaExistente){
+            if(siglaExistente && siglaExistente.id != estudoId){
                 throw new AppError(
                     'CONFLICT',
                     'Esta sigla já está em uso.',
@@ -88,7 +100,13 @@ class EstudoService extends BaseService {
     }
 
     async deletarEstudo(userId: number, estudoId: number) {
-        
+        await this.adminAuthorization.isAdmin(userId);
+        const estudo = await this.estudoRepository.findById(estudoId);
+        if (!estudo) {
+            throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
+        }
+
+        return this.estudoRepository.softDelete(estudoId);
     }
 }
 

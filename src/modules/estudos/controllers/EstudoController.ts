@@ -73,7 +73,7 @@ class EstudoController {
       res,
       {
         data: estudo,
-        message: 'Estudo atualizado com sucesso!'
+        message: 'Estudo deletado com sucesso!'
       },
       HttpStatus.OK
     );

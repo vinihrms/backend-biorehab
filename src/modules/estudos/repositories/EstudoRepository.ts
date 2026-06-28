@@ -52,6 +52,16 @@ class EstudoRepository extends BaseRepository {
     });
   }
 
+  async softDelete(estudoId: number) {
+    return this.prisma.estudo.update({
+      where: {
+        id: estudoId
+      },
+      data: {
+        deletedAt: new Date()
+      }
+    });
+  }
 
 }
 
