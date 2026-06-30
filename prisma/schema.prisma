@@ -68,9 +68,9 @@ model Usuario {
 model Participante {
   id         Int                  @id @default(autoincrement())
   name       String               @db.VarChar(30)
-  telefone   String?              @db.VarChar(20)
-  sexo       Sexo?
-  nascimento DateTime?            @db.Date
+  telefone   String              @db.VarChar(20)
+  sexo       Sexo
+  nascimento DateTime            @db.Date
   ativo      Int                  @default(1) @db.TinyInt
   createdAt  DateTime             @default(now()) @map("created_at")
   updatedAt  DateTime             @updatedAt @map("updated_at")

@@ -48,7 +48,7 @@ class EstudoService extends BaseService {
     }
 
 
-    async list(userId: number) {
+    async listaTodosParaAdmin(userId: number) {
         await this.adminAuthorization.isAdmin(userId);
         return this.estudoRepository.findAll();
     }
@@ -123,7 +123,7 @@ class EstudoService extends BaseService {
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
         }
-        
+
         if (estudo.deletedAt === null) {
             throw new AppError(
                 'STUDY_ALREADY_ACTIVE',
@@ -133,8 +133,7 @@ class EstudoService extends BaseService {
         }
 
         return this.estudoRepository.restaura(estudoId);
-
-
+        
     }
 }
 

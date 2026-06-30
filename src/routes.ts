@@ -6,6 +6,7 @@ import asyncHandler from './utils/async-handler';
 import { HttpStatus } from './utils/http-status';
 import { sendSuccess } from './utils/response';
 import estudoController from './modules/estudos/controllers/EstudoController';
+import ParticipanteController from './modules/participantes/controllers/ParticipanteController';
 
 const routes = Router();
 
@@ -31,4 +32,16 @@ routes.post('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoControlle
 routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.atualizar))
 routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar))
 routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar))
+
+
+// ROTAS PARTICIPANTES
+routes.get('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.listar))
+routes.get('/api/participantes/excluidos', autenticacaoMiddleware, asyncHandler(ParticipanteController.listarExcluidos))
+routes.get('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.buscaPorId))
+routes.post('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.criar))
+routes.patch('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.atualizar))
+routes.patch('/api/participantes/:participanteId/restaurar', autenticacaoMiddleware, asyncHandler(ParticipanteController.restaurar))
+routes.delete('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.deletar))
+
+
 export default routes;

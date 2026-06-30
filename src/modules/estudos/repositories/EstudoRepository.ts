@@ -65,12 +65,12 @@ class EstudoRepository extends BaseRepository {
   }
 
   async findByIdIncludingDeleted(estudoId: number): Promise<Estudo | null> {
-  return this.prisma.estudo.findUnique({
-    where: {
-      id: estudoId
-    }
-  });
-}
+    return this.prisma.estudo.findUnique({
+      where: {
+        id: estudoId
+      }
+    });
+  }
 
   async findAllExcluidos(): Promise<Estudo[]> {
     return this.prisma.estudo.findMany({ where: { deletedAt: { not: null } } });

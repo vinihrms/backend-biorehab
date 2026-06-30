@@ -24,7 +24,7 @@ class EstudoController {
   };
 
   list = async (req: Request, res: Response): Promise<Response> => {
-    const estudos = await this.estudoService.list(req.usuarioLogado.id);
+    const estudos = await this.estudoService.listaTodosParaAdmin(req.usuarioLogado.id);
     return sendSuccess(
       res,
       {
@@ -98,7 +98,7 @@ class EstudoController {
       res,
       {
         data: estudo,
-        message: 'Estudo listado com sucesso!'
+        message: 'Estudo restaurado com sucesso!'
       },
       HttpStatus.OK
     );
