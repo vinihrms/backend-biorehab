@@ -33,7 +33,6 @@ routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estu
 routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar))
 routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar))
 
-
 // ROTAS PARTICIPANTES
 routes.get('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.listar))
 routes.get('/api/participantes/excluidos', autenticacaoMiddleware, asyncHandler(ParticipanteController.listarExcluidos))

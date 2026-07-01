@@ -42,7 +42,7 @@ class ParticipanteService extends BaseService {
     async atualizar(participanteId: number, data: atualizarParticipanteSchema) {
         const participante = await this.participanteRepository.findById(participanteId);
         if (!participante) {
-            throw new AppError('PARTICIPANT_NOT_FOUND', 'Partucipante não encontrado.', HttpStatus.NOT_FOUND);
+            throw new AppError('PARTICIPANT_NOT_FOUND', 'Participante não encontrado.', HttpStatus.NOT_FOUND);
         }
 
         if (data.nascimento && data.nascimento > new Date()) {
@@ -72,7 +72,7 @@ class ParticipanteService extends BaseService {
     async restaurar(participanteId: number) {
         const participante = await this.participanteRepository.findByIdIncludingDeleted(participanteId);
         if (!participante) {
-            throw new AppError('STUDY_NOT_FOUND', 'participante não encontrado.', HttpStatus.NOT_FOUND);
+            throw new AppError('PARTICIPANT_NOT_FOUND', 'participante não encontrado.', HttpStatus.NOT_FOUND);
         }
         
         if (participante.deletedAt === null) {

@@ -28,8 +28,7 @@ class ParticipanteRepository extends BaseRepository {
   }
 
   async update(participanteId: number, data: atualizarParticipanteSchema) {
-    const updateData: Record<string, unknown> = {};
-
+    const updateData: Prisma.ParticipanteUpdateInput = {};
     if (data.name !== undefined) {
       updateData.name = data.name;
     }
