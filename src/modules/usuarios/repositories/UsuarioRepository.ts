@@ -5,8 +5,7 @@ const usuarioPublicSelect = {
   id: true,
   email: true,
   ra: true,
-  name: true,
-  isAdmin: true,
+  nome: true,
   createdAt: true,
 } satisfies Prisma.UsuarioSelect;
 

@@ -2,6 +2,7 @@ import { Estudo } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
 import { AtualizarEstudoInput, CriarEstudoInput } from '../schemas/estudo.schema';
 import { number } from 'zod';
+import { promises } from 'node:dns';
 
 class EstudoRepository extends BaseRepository {
   async findByName(nome: string): Promise<Estudo | null> {
@@ -23,6 +24,19 @@ class EstudoRepository extends BaseRepository {
 
   async findAll(): Promise<Estudo[]> {
     return this.prisma.estudo.findMany({ where: { deletedAt: null } });
+  }
+
+  async findAllByUsario(userId: number): Promise<Estudo[]> {
+    return this.prisma.estudo.findMany({
+      where: {
+        permissoes: {
+          some: {
+            usuarioId: userId,
+          },
+        },
+        deletedAt: null,
+      },
+    });
   }
 
 

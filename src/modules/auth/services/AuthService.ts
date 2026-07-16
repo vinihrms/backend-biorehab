@@ -10,7 +10,7 @@ import { LoginInput } from '../schemas/login.schema';
 type LoginResponse = {
   user: {
     id: number;
-    name: string;
+    nome: string;
     email: string;
     ra: string;
     isAdmin: boolean;
@@ -35,8 +35,7 @@ class AuthService extends BaseService {
       email: data.email,
       password: senhaCriptografada,
       ra: data.ra,
-      name: data.name,
-      isAdmin: data.isAdmin ?? false,
+      nome: data.nome,
     });
   }
 
@@ -64,7 +63,7 @@ class AuthService extends BaseService {
     return {
       user: {
         id: usuario.id,
-        name: usuario.name,
+        nome: usuario.nome,
         email: usuario.email,
         ra: usuario.ra,
         isAdmin: usuario.isAdmin,

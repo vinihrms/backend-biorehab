@@ -51,7 +51,7 @@ model Usuario {
   email      String            @unique @db.VarChar(254)
   password   String            @db.VarChar(255)
   ra         String            @unique @db.VarChar(6)
-  name       String            @default("") @db.VarChar(150)
+  nome       String            @default("") @db.VarChar(150)
   isActive   Int               @default(1) @db.TinyInt @map("is_active")
   isAdmin    Boolean           @default(false) @map("is_admin")
   createdAt  DateTime          @default(now()) @map("created_at")
@@ -67,7 +67,7 @@ model Usuario {
 
 model Participante {
   id         Int                  @id @default(autoincrement())
-  name       String               @db.VarChar(30)
+  nome       String               @db.VarChar(30)
   telefone   String              @db.VarChar(20)
   sexo       Sexo
   nascimento DateTime            @db.Date

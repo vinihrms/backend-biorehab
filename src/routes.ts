@@ -6,7 +6,9 @@ import asyncHandler from './utils/async-handler';
 import { HttpStatus } from './utils/http-status';
 import { sendSuccess } from './utils/response';
 import estudoController from './modules/estudos/controllers/EstudoController';
+import PermissaoEstudoController from './modules/permissao_estudos/controllers/PermissaoEstudoController';
 import ParticipanteController from './modules/participantes/controllers/ParticipanteController';
+import VariavelController from './modules/variaveis/controllers/VariavelController';
 
 const routes = Router();
 
@@ -25,13 +27,32 @@ routes.get('/api/auth/me', autenticacaoMiddleware, (req: RequestAutenticado, res
 });
 
 // ROTAS REFERENTES A ESTUDOS
-routes.get('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.list))
+routes.get('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.listar))
 routes.get('/api/estudos/excluidos', autenticacaoMiddleware, asyncHandler(estudoController.listarExcluidos))
 routes.get('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.buscarPorId))
 routes.post('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.criar))
 routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.atualizar))
 routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar))
 routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar))
+
+// PERMISSOES POR ESTUDO
+routes.get('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.listar))
+routes.post('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.criar))
+routes.patch('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.atualizar))
+routes.delete('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.deletar))
+
+
+// VARIAVEIS
+routes.get('/api/estudos/:estudoId/variveis', autenticacaoMiddleware, asyncHandler(VariavelController.listar))
+routes.get('/api/estudos/:estudoId/variveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.listarPorId))
+routes.get('/api/estudos/:estudoId/variveis/excluidas', autenticacaoMiddleware, asyncHandler(VariavelController.listarExcluidas))
+routes.post('/api/estudos/:estudoId/variveis', autenticacaoMiddleware, asyncHandler(VariavelController.criar))
+routes.patch('/api/estudos/:estudoId/variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.atualizar))
+routes.delete('/api/estudos/:estudoId/variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.deletar))
+
+
+
+
 
 // ROTAS PARTICIPANTES
 routes.get('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.listar))
@@ -41,6 +62,7 @@ routes.post('/api/participantes', autenticacaoMiddleware, asyncHandler(Participa
 routes.patch('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.atualizar))
 routes.patch('/api/participantes/:participanteId/restaurar', autenticacaoMiddleware, asyncHandler(ParticipanteController.restaurar))
 routes.delete('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.deletar))
+
 
 
 export default routes;

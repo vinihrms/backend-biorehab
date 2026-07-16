@@ -2,7 +2,7 @@ import { Sexo } from '@prisma/client';
 import { z } from 'zod';
 
 export const criarParticipanteSchema = z.object({
-  name: z.string().min(3).max(100),
+  nome: z.string().min(3).max(100),
   telefone: z.string().max(15).regex(/^\d{10,15}$/),
   sexo: z.nativeEnum(Sexo),
   nascimento: z.coerce.date(),

@@ -5,13 +5,13 @@ import { atualizarParticipanteSchema, CriarParticipanteInput, criarParticipanteS
 class ParticipanteRepository extends BaseRepository {
 
   async findByName(nome: string): Promise<Participante | null> {
-    return this.prisma.participante.findFirst({ where: { name: nome, deletedAt: null } });
+    return this.prisma.participante.findFirst({ where: { nome: nome, deletedAt: null } });
   }
 
   async create(data: CriarParticipanteInput) {
     return this.prisma.participante.create({
       data: {
-        name: data.name,
+        nome: data.nome,
         telefone: data.telefone,
         sexo: data.sexo,
         nascimento: data.nascimento,
@@ -29,8 +29,8 @@ class ParticipanteRepository extends BaseRepository {
 
   async update(participanteId: number, data: atualizarParticipanteSchema) {
     const updateData: Prisma.ParticipanteUpdateInput = {};
-    if (data.name !== undefined) {
-      updateData.name = data.name;
+    if (data.nome !== undefined) {
+      updateData.nome = data.nome;
     }
     if (data.sexo !== undefined) {
       updateData.sexo = data.sexo;

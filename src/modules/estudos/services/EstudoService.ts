@@ -5,19 +5,24 @@ import { AppError } from '../../../errors/app-error';
 import { HttpStatus } from '../../../utils/http-status';
 import EstudoRepository from '../repositories/EstudoRepository';
 import PermissaoEstudoRepository from '../../permissao_estudos/repositories/PermissaoEstudoRepository';
-import { Papel, Estudo } from '@prisma/client';
-import AdminAuthorization from '../../../authorization/AdminAuthorization';
+import { Papel, Estudo, Usuario } from '@prisma/client';
+import StudyAuthorization from '../../../authorization/StudyAuthorization';
 import { number } from 'zod';
+import UsuarioRepository from '../../usuarios/repositories/UsuarioRepository';
+import AdminAuthorization from '../../../authorization/AdminAuthorization';
 
 
 class EstudoService extends BaseService {
 
     private estudoRepository = new EstudoRepository();
     private permissaoEstudoRepository = new PermissaoEstudoRepository();
+    private studyAuthorization = new StudyAuthorization();
+    private usuarioRepositorio = new UsuarioRepository();
     private adminAuthorization = new AdminAuthorization();
 
     async create(data: CriarEstudoInput, userId: number) {
         const usuario = await this.adminAuthorization.isAdmin(userId);
+
         const estudoExistente = await this.estudoRepository.findByName(data.nome);
 
         if (estudoExistente) {
@@ -48,13 +53,25 @@ class EstudoService extends BaseService {
     }
 
 
-    async listaTodosParaAdmin(userId: number) {
-        await this.adminAuthorization.isAdmin(userId);
-        return this.estudoRepository.findAll();
+    async listaEstudos(userId: number) {
+        const usuario = await this.usuarioRepositorio.findById(userId);
+        if (!usuario) {
+            throw new AppError(
+                'USER_NOT_FOUND',
+                'Usuário não encontrado.',
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        if(usuario.isAdmin){
+            return this.estudoRepository.findAll();
+        }
+
+        return this.estudoRepository.findAllByUsario(userId);
     }
 
     async getById(userId: number, estudoId: number) {
-        await this.adminAuthorization.isAdmin(userId);
+        await this.studyAuthorization.canView(userId, estudoId);
         const estudo = await this.estudoRepository.findById(estudoId);
 
         if (!estudo) {
@@ -65,7 +82,7 @@ class EstudoService extends BaseService {
     }
 
     async atualizarEstudo(userId: number, estudoId: number, data: AtualizarEstudoInput) {
-        await this.adminAuthorization.isAdmin(userId);
+        await this.studyAuthorization.canManageStudy(userId, estudoId);
         const estudo = await this.estudoRepository.findById(estudoId);
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
@@ -100,7 +117,7 @@ class EstudoService extends BaseService {
     }
 
     async deletarEstudo(userId: number, estudoId: number) {
-        await this.adminAuthorization.isAdmin(userId);
+        await this.studyAuthorization.canManageStudy(userId, estudoId);
         const estudo = await this.estudoRepository.findById(estudoId);
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
@@ -111,14 +128,14 @@ class EstudoService extends BaseService {
 
 
     async buscarExcluidos(userId: number) {
-        await this.adminAuthorization.isAdmin(userId);
+        await this.usuarioRepositorio.findById(userId);
         return this.estudoRepository.findAllExcluidos();
     }
 
 
 
     async restaurarEstudo(userId: number, estudoId: number) {
-        await this.adminAuthorization.isAdmin(userId);
+        await this.studyAuthorization.canManageStudy(userId, estudoId);
         const estudo = await this.estudoRepository.findByIdIncludingDeleted(estudoId);
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);

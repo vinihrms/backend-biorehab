@@ -3,12 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { AppError } from '../errors/app-error';
 import { HttpStatus } from '../utils/http-status';
 
-export interface RequestAutenticado extends Request {
-  usuarioLogado?: {
-    id: number;
-    isAdmin: boolean;
-  };
-}
+export type RequestAutenticado = Request;
 
 type JwtPayload = {
   id: number;
@@ -34,7 +29,12 @@ export default function autenticacaoMiddleware(
     return next(new AppError('AUTH_TOKEN_MALFORMED', 'Auth token malformed.', HttpStatus.UNAUTHORIZED));
   }
 
-  const [esquema, token] = partes;
+  const esquema = partes[0];
+  const token = partes[1];
+
+  if (!esquema || !token) {
+    return next(new AppError('AUTH_TOKEN_MALFORMED', 'Auth token malformed.', HttpStatus.UNAUTHORIZED));
+  }
 
   if (!/^Bearer$/i.test(esquema)) {
     return next(new AppError('AUTH_TOKEN_MALFORMED', 'Auth token malformed.', HttpStatus.UNAUTHORIZED));
@@ -47,7 +47,8 @@ export default function autenticacaoMiddleware(
   }
 
   try {
-    const decoded = jwt.verify(token, secret);
+    const jwtSecret: string = secret;
+    const decoded = jwt.verify(token, jwtSecret);
 
     if (!decoded || typeof decoded === 'string') {
       throw new AppError('INVALID_TOKEN', 'Invalid or expired token.', HttpStatus.UNAUTHORIZED);
