@@ -23,18 +23,36 @@ class VariavelService extends BaseService {
     }
 
     async listaVariaveis(estudoId: number, userId: number) {
+        const estudo = await this.estudoRepository.findById(estudoId);
+        if (!estudo) {
+            throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
+        }
+
         await this.studyAuthorization.canView(userId, estudoId);
 
         return this.variavelRepository.findAllByStudy(estudoId);
     }
 
     async listaVariaveisPorId(estudoId: number, variavelId: number, userId: number) {
+        const estudo = await this.estudoRepository.findById(estudoId);
+        if (!estudo) {
+            throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
+        }
+
         await this.studyAuthorization.canView(userId, estudoId);
+
+        const variavel = await this.variavelRepository.findById(variavelId);
+
+        if (!variavel) {
+            throw new AppError('VAVIAVEL_NOT_FOUND', 'Variável não encontrada.', HttpStatus.NOT_FOUND);
+        }
 
         return this.variavelRepository.findById(variavelId);
     }
 
     async criar(data: CriarVariavelInput, userId: number, estudoId: number) {
+        await this.estudoExiste(estudoId);
+
         await this.studyAuthorization.canManageStudy(userId, estudoId);
 
         const variavelExistente = await this.variavelRepository.findByNameInStudy(data.nome, estudoId);
@@ -49,6 +67,8 @@ class VariavelService extends BaseService {
     }
 
     async atualizar(userId: number, estudoId: number, variavelId: number, data: AtualizarVariavelInput) {
+        await this.estudoExiste(estudoId);
+
         await this.studyAuthorization.canManageStudy(userId, estudoId);
 
         const variavelExiste = await this.variavelRepository.findById(variavelId);
@@ -79,17 +99,40 @@ class VariavelService extends BaseService {
 
         const variavelExiste = await this.variavelRepository.findById(variavelId);
         if (!variavelExiste) {
-            throw new AppError('STUDY_NOT_FOUND', 'Variável não encontrada.', HttpStatus.NOT_FOUND);
+            throw new AppError('VARIAVEL_NOT_FOUND', 'Variável não encontrada.', HttpStatus.NOT_FOUND);
         }
 
         await this.variavelRepository.deletar(variavelId);
 
     }
 
-    async buscarExcluidos(userId: number, estudoId: number){
+    async buscarExcluidas(userId: number, estudoId: number) {
         await this.estudoExiste(estudoId);
         await this.studyAuthorization.canManageStudy(userId, estudoId);
-        
+
+        return this.variavelRepository.findAllExcluidos(estudoId);
+
+    }
+
+    async restaurar(userId: number, estudoId: number, variavelId: number) {
+        await this.estudoExiste(estudoId);
+
+        await this.studyAuthorization.canManageStudy(userId, estudoId);
+        const variavel = await this.variavelRepository.findByIdIncludingDeleted(estudoId, variavelId);
+        if (!variavel) {
+            throw new AppError('VARIAVEL_NOT_FOUND', 'Varivel não encontrado.', HttpStatus.NOT_FOUND);
+        }
+
+        if (variavel.deletedAt === null) {
+            throw new AppError(
+                'VARIAVEL_ALREADY_ACTIVE',
+                'Esta variável já está ativa.',
+                HttpStatus.CONFLICT
+            );
+        }
+
+        return this.variavelRepository.restaura(variavel.id);
+
     }
 }
 

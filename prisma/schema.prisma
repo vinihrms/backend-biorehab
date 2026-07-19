@@ -32,7 +32,6 @@ model Estudo {
   nome        String               @db.VarChar(100)
   sigla       String?  @db.VarChar(10)
   descricao   String?              @db.Text
-  ativo       Int                  @default(1) @db.TinyInt
   createdAt   DateTime             @default(now()) @map("created_at")
   updatedAt   DateTime             @updatedAt @map("updated_at")
   deletedAt   DateTime?            @map("deleted_at")
@@ -71,7 +70,6 @@ model Participante {
   telefone   String              @db.VarChar(20)
   sexo       Sexo
   nascimento DateTime            @db.Date
-  ativo      Int                  @default(1) @db.TinyInt
   createdAt  DateTime             @default(now()) @map("created_at")
   updatedAt  DateTime             @updatedAt @map("updated_at")
   deletedAt  DateTime?            @map("deleted_at")
@@ -86,7 +84,6 @@ model TipoVisita {
   id        Int       @id @default(autoincrement())
   nome      String    @db.VarChar(100)
   estudoId  Int       @map("estudo_id")
-  ativo     Int       @default(1) @db.TinyInt
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
@@ -104,11 +101,9 @@ model Variavel {
   dataType  DataType  @default(numeric) @map("data_type")
   options   String?   @db.Text
   estudoId  Int       @map("estudo_id")
-  ativo     Int       @default(1) @db.TinyInt
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
-
   estudo    Estudo    @relation(fields: [estudoId], references: [id], onDelete: Cascade)
   medicoes  Medicao[]
 
@@ -123,11 +118,9 @@ model Visita {
   tipoVisitaId   Int          @map("tipo_visita_id")
   createdBy      Int          @map("created_by")
   notes          String?      @db.Text
-  ativo          Int          @default(1) @db.TinyInt
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   deletedAt      DateTime?    @map("deleted_at")
-
   estudo         Estudo       @relation(fields: [estudoId], references: [id], onDelete: Cascade)
   participante   Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
   tipoVisita     TipoVisita   @relation(fields: [tipoVisitaId], references: [id], onDelete: Cascade)
@@ -141,12 +134,7 @@ model ParticipacaoEstudo {
   id             Int          @id @default(autoincrement())
   estudoId       Int          @map("estudo_id")
   participanteId Int          @map("participante_id")
-
   codigo         String?      @db.VarChar(20)
-
-  
-
-  ativo          Int          @default(1) @db.TinyInt
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   deletedAt      DateTime?    @map("deleted_at")
@@ -183,7 +171,6 @@ model Medicao {
   valorText  String?   @db.Text @map("valor_text")
   lado       String?   @db.VarChar(1)
   createdBy  Int       @map("created_by")
-  ativo      Int       @default(1) @db.TinyInt
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")

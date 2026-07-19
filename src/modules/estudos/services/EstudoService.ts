@@ -72,8 +72,9 @@ class EstudoService extends BaseService {
 
     async getById(userId: number, estudoId: number) {
         await this.studyAuthorization.canView(userId, estudoId);
+        
         const estudo = await this.estudoRepository.findById(estudoId);
-
+        
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
         }
@@ -129,6 +130,7 @@ class EstudoService extends BaseService {
 
     async buscarExcluidos(userId: number) {
         await this.usuarioRepositorio.findById(userId);
+        await this.adminAuthorization.isAdmin(userId);
         return this.estudoRepository.findAllExcluidos();
     }
 

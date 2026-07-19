@@ -3,6 +3,7 @@ import { HttpStatus } from '../../../utils/http-status';
 import { sendSuccess } from '../../../utils/response';
 import VariavelService from '../services/VariavelService';
 import { atualizarVariavelSchema, criarVariavelSchema } from '../schemas/variavel.schema';
+import { number } from 'zod';
 
 class VariavelController {
   private variavelService = new VariavelService();
@@ -15,20 +16,6 @@ class VariavelController {
       {
         data: variaveis,
         message: 'Variaveis listadas com sucesso!'
-      },
-      HttpStatus.OK
-    );
-  }
-  
-  listarPorId = async (req: Request, res: Response): Promise<Response> => {
-    const estudoId = Number(req.params.estudoId);
-    const variavelId = Number(req.params.variavelId);
-    const variaveis = await this.variavelService.listaVariaveisPorId(estudoId, variavelId, req.usuarioLogado.id);
-    return sendSuccess(
-      res,
-      {
-        data: variaveis,
-        message: 'Variável listada com sucesso!'
       },
       HttpStatus.OK
     );
@@ -48,6 +35,21 @@ class VariavelController {
         HttpStatus.CREATED
       );
     };
+  
+  listarPorId = async (req: Request, res: Response): Promise<Response> => {
+    const estudoId = Number(req.params.estudoId);
+    const variavelId = Number(req.params.variavelId);
+    const variaveis = await this.variavelService.listaVariaveisPorId(estudoId, variavelId, req.usuarioLogado.id);
+    return sendSuccess(
+      res,
+      {
+        data: variaveis,
+        message: 'Variável listada com sucesso!'
+      },
+      HttpStatus.OK
+    );
+  }
+
 
     atualizar = async (req: Request, res: Response): Promise<Response> => {
         const estudoId = Number(req.params.estudoId)
@@ -85,12 +87,26 @@ class VariavelController {
     const estudoId = Number(req.params.estudoId);
 
 
-    const variaveis = await this.variavelService.buscarExcluidos(req.usuarioLogado.id, estudoId);
+    const variaveis = await this.variavelService.buscarExcluidas(req.usuarioLogado.id, estudoId);
     return sendSuccess(
       res,
       {
         data: variaveis,
         message: 'Variáveis deletados listados com sucesso!'
+      },
+      HttpStatus.OK
+    );
+  }
+
+  restaurar = async(req: Request, res: Response): Promise<Response> => {
+    const estudoId = Number(req.params.estudoId)
+    const variavelId = Number(req.params.variavelId)
+    const variavel = await this.variavelService.restaurar(req.usuarioLogado.id, estudoId, variavelId);
+    return sendSuccess(
+      res,
+      {
+        data: variavel,
+        message: 'Variável restaurada com sucesso!'
       },
       HttpStatus.OK
     );

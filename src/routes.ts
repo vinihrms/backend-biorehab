@@ -32,8 +32,8 @@ routes.get('/api/estudos/excluidos', autenticacaoMiddleware, asyncHandler(estudo
 routes.get('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.buscarPorId))
 routes.post('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.criar))
 routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.atualizar))
-routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar))
 routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar))
+routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar))
 
 // PERMISSOES POR ESTUDO
 routes.get('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.listar))
@@ -41,18 +41,14 @@ routes.post('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHa
 routes.patch('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.atualizar))
 routes.delete('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.deletar))
 
-
 // VARIAVEIS
-routes.get('/api/estudos/:estudoId/variveis', autenticacaoMiddleware, asyncHandler(VariavelController.listar))
-routes.get('/api/estudos/:estudoId/variveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.listarPorId))
-routes.get('/api/estudos/:estudoId/variveis/excluidas', autenticacaoMiddleware, asyncHandler(VariavelController.listarExcluidas))
-routes.post('/api/estudos/:estudoId/variveis', autenticacaoMiddleware, asyncHandler(VariavelController.criar))
-routes.patch('/api/estudos/:estudoId/variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.atualizar))
-routes.delete('/api/estudos/:estudoId/variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.deletar))
-
-
-
-
+routes.get('/api/estudos/:estudoId/variaveis', autenticacaoMiddleware, asyncHandler(VariavelController.listar))
+routes.get('/api/estudos/:estudoId/variaveis/excluidas', autenticacaoMiddleware, asyncHandler(VariavelController.listarExcluidas))
+routes.get('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.listarPorId))
+routes.post('/api/estudos/:estudoId/variaveis', autenticacaoMiddleware, asyncHandler(VariavelController.criar))
+routes.patch('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.atualizar))
+routes.delete('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.deletar))
+routes.patch('/api/estudos/:estudoId/variaveis/:variavelId/restaurar', autenticacaoMiddleware, asyncHandler(VariavelController.restaurar))
 
 // ROTAS PARTICIPANTES
 routes.get('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.listar))

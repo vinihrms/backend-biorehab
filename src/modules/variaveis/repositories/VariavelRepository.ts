@@ -6,11 +6,11 @@ import { AtualizarVariavelInput, CriarVariavelInput } from '../schemas/variavel.
 class VariavelRepository extends BaseRepository {
 
     async findAllByStudy(estudoId: number) {
-        return this.prisma.variavel.findMany({ where: { estudoId } })
+        return this.prisma.variavel.findMany({ where: { estudoId, deletedAt: null } })
     }
 
     async findById(variavelId: number) {
-        return this.prisma.variavel.findUnique({ where: { id: variavelId } })
+        return this.prisma.variavel.findFirst({ where: { id: variavelId, deletedAt: null } })
     }
 
     async findByNameInStudy(nome: string, estudoId: number) {
@@ -66,6 +66,32 @@ class VariavelRepository extends BaseRepository {
         });
     }
 
+    async findAllExcluidos(estudoId: number) {
+        return this.prisma.variavel.findMany({
+            where: {
+                estudoId: estudoId, deletedAt: { not: null }
+            },
+        });
+    }
+
+    async findByIdIncludingDeleted(estudoId: number, variavelId: number) {
+        return this.prisma.variavel.findFirst({
+            where: {
+                estudoId: estudoId, id: variavelId
+            },
+        });
+    }
+
+    async restaura(variavelId: number) {
+        return this.prisma.variavel.update({
+            where: {
+                id: variavelId
+            },
+            data: {
+                deletedAt: null
+            }
+        });
+    }
 
 }
 
