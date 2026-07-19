@@ -6,24 +6,24 @@ import { atualizarParticipanteSchema, criarParticipanteSchema } from '../schemas
 import ParticipanteService from '../services/ParticipanteService';
 
 class ParticipanteController {
-    private participanteService = new ParticipanteService();
-    
-    criar = async (req: Request, res: Response): Promise<Response> => {
-        const dadosValidados = criarParticipanteSchema.parse(req.body)
-    
-        const participante = await this.participanteService.create(dadosValidados, req.usuarioLogado.id);
-    
-        return sendSuccess(
-          res,
-          {
-            data: participante,
-            message: 'Participante cadastrado com sucesso!'
-          },
-          HttpStatus.CREATED
-        );
-      };
+  private participanteService = new ParticipanteService();
 
-    listar = async (req: Request, res: Response): Promise<Response> => {
+  criar = async (req: Request, res: Response): Promise<Response> => {
+    const dadosValidados = criarParticipanteSchema.parse(req.body)
+
+    const participante = await this.participanteService.create(dadosValidados, req.usuarioLogado.id);
+
+    return sendSuccess(
+      res,
+      {
+        data: participante,
+        message: 'Participante cadastrado com sucesso!'
+      },
+      HttpStatus.CREATED
+    );
+  };
+
+  listar = async (req: Request, res: Response): Promise<Response> => {
     const participantes = await this.participanteService.listar();
     return sendSuccess(
       res,
@@ -50,21 +50,21 @@ class ParticipanteController {
   }
 
   atualizar = async (req: Request, res: Response): Promise<Response> => {
-      const participanteId = Number(req.params.participanteId)
-      const dadosValidados = atualizarParticipanteSchema.parse(req.body)
-  
-      const participante = await this.participanteService.atualizar(participanteId, dadosValidados);
-      return sendSuccess(
-        res,
-        {
-          data: participante,
-          message: 'Participante atualizado com sucesso!'
-        },
-        HttpStatus.OK
-      );
-    }
+    const participanteId = Number(req.params.participanteId)
+    const dadosValidados = atualizarParticipanteSchema.parse(req.body)
 
-    deletar = async (req: Request, res: Response): Promise<Response> => {
+    const participante = await this.participanteService.atualizar(participanteId, dadosValidados);
+    return sendSuccess(
+      res,
+      {
+        data: participante,
+        message: 'Participante atualizado com sucesso!'
+      },
+      HttpStatus.OK
+    );
+  }
+
+  deletar = async (req: Request, res: Response): Promise<Response> => {
     const participanteId = Number(req.params.participanteId)
     await this.participanteService.deletar(participanteId);
 

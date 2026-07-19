@@ -9,6 +9,8 @@ import estudoController from './modules/estudos/controllers/EstudoController';
 import PermissaoEstudoController from './modules/permissao_estudos/controllers/PermissaoEstudoController';
 import ParticipanteController from './modules/participantes/controllers/ParticipanteController';
 import VariavelController from './modules/variaveis/controllers/VariavelController';
+import ParticipanteEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
+import ParticipacaoEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
 
 const routes = Router();
 
@@ -35,6 +37,12 @@ routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estu
 routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar))
 routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar))
 
+// RELAÇÃO PARTICIPANTE x ESTUDO
+routes.get('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.listarPorEstudo))
+routes.post('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.vincularAoEstudo))
+routes.delete('/api/estudos/:estudoId/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.desvinculaAoEstudo))
+
+
 // PERMISSOES POR ESTUDO
 routes.get('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.listar))
 routes.post('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.criar))
@@ -58,7 +66,5 @@ routes.post('/api/participantes', autenticacaoMiddleware, asyncHandler(Participa
 routes.patch('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.atualizar))
 routes.patch('/api/participantes/:participanteId/restaurar', autenticacaoMiddleware, asyncHandler(ParticipanteController.restaurar))
 routes.delete('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.deletar))
-
-
 
 export default routes;

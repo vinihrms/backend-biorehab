@@ -28,14 +28,14 @@ enum Sexo {
 }
 
 model Estudo {
-  id          Int                  @id @default(autoincrement())
-  nome        String               @db.VarChar(100)
-  sigla       String?  @db.VarChar(10)
-  descricao   String?              @db.Text
-  createdAt   DateTime             @default(now()) @map("created_at")
-  updatedAt   DateTime             @updatedAt @map("updated_at")
-  deletedAt   DateTime?            @map("deleted_at")
-  
+  id        Int       @id @default(autoincrement())
+  nome      String    @db.VarChar(100)
+  sigla     String    @db.VarChar(10)
+  descricao String?   @db.Text
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
   tipoVisitas   TipoVisita[]
   variaveis     Variavel[]
   participacoes ParticipacaoEstudo[]
@@ -46,16 +46,16 @@ model Estudo {
 }
 
 model Usuario {
-  id         Int               @id @default(autoincrement())
-  email      String            @unique @db.VarChar(254)
-  password   String            @db.VarChar(255)
-  ra         String            @unique @db.VarChar(6)
-  nome       String            @default("") @db.VarChar(150)
-  isActive   Int               @default(1) @db.TinyInt @map("is_active")
-  isAdmin    Boolean           @default(false) @map("is_admin")
-  createdAt  DateTime          @default(now()) @map("created_at")
-  updatedAt  DateTime          @updatedAt @map("updated_at")
-  deletedAt  DateTime?         @map("deleted_at")
+  id        Int       @id @default(autoincrement())
+  email     String    @unique @db.VarChar(254)
+  password  String    @db.VarChar(255)
+  ra        String    @unique @db.VarChar(6)
+  nome      String    @default("") @db.VarChar(150)
+  isActive  Int       @default(1) @map("is_active") @db.TinyInt
+  isAdmin   Boolean   @default(false) @map("is_admin")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   visitasCriadas  Visita[]
   medicoesCriadas Medicao[]
@@ -65,14 +65,14 @@ model Usuario {
 }
 
 model Participante {
-  id         Int                  @id @default(autoincrement())
-  nome       String               @db.VarChar(30)
-  telefone   String              @db.VarChar(20)
+  id         Int       @id @default(autoincrement())
+  nome       String    @db.VarChar(30)
+  telefone   String    @db.VarChar(20)
   sexo       Sexo
-  nascimento DateTime            @db.Date
-  createdAt  DateTime             @default(now()) @map("created_at")
-  updatedAt  DateTime             @updatedAt @map("updated_at")
-  deletedAt  DateTime?            @map("deleted_at")
+  nascimento DateTime  @db.Date
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
 
   participacoes ParticipacaoEstudo[]
   visitas       Visita[]
@@ -88,8 +88,8 @@ model TipoVisita {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  estudo    Estudo    @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  visitas   Visita[]
+  estudo  Estudo   @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  visitas Visita[]
 
   @@map("tipo_visitas")
 }
@@ -111,36 +111,42 @@ model Variavel {
 }
 
 model Visita {
-  id             Int          @id @default(autoincrement())
-  data           DateTime     @db.Date
-  participanteId Int          @map("participante_id")
-  estudoId       Int          @map("estudo_id")
-  tipoVisitaId   Int          @map("tipo_visita_id")
-  createdBy      Int          @map("created_by")
-  notes          String?      @db.Text
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
-  deletedAt      DateTime?    @map("deleted_at")
-  estudo         Estudo       @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  participante   Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
-  tipoVisita     TipoVisita   @relation(fields: [tipoVisitaId], references: [id], onDelete: Cascade)
-  usuario        Usuario      @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  id                   Int       @id @default(autoincrement())
+  data                 DateTime  @db.Date
+  participacaoEstudoId Int       @map("participacao_estudo_id")
+  tipoVisitaId         Int       @map("tipo_visita_id")
+  createdBy            Int       @map("created_by")
+  notes                String?   @db.Text
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
+
+  participacaoEstudo ParticipacaoEstudo @relation(fields: [participacaoEstudoId], references: [id], onDelete: Restrict)
+  tipoVisita         TipoVisita         @relation(fields: [tipoVisitaId], references: [id], onDelete: Restrict)
+  usuario            Usuario            @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+
   medicoes       Medicao[]
+  estudo         Estudo?       @relation(fields: [estudoId], references: [id])
+  estudoId       Int?
+  participante   Participante? @relation(fields: [participanteId], references: [id])
+  participanteId Int?
 
   @@map("visitas")
 }
 
 model ParticipacaoEstudo {
-  id             Int          @id @default(autoincrement())
-  estudoId       Int          @map("estudo_id")
-  participanteId Int          @map("participante_id")
-  codigo         String?      @db.VarChar(20)
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
-  deletedAt      DateTime?    @map("deleted_at")
+  id             Int    @id @default(autoincrement())
+  estudoId       Int    @map("estudo_id")
+  participanteId Int    @map("participante_id")
+  codigo         String @db.VarChar(20)
 
-  estudo         Estudo       @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  participante   Participante @relation(fields: [participanteId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  estudo       Estudo       @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Restrict)
+
+  visitas Visita[]
 
   @@unique([estudoId, participanteId])
   @@unique([estudoId, codigo])
@@ -156,8 +162,8 @@ model PermissaoEstudo {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  estudo    Estudo    @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  estudo  Estudo  @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@unique([estudoId, usuarioId])
   @@map("permissoes_estudo")
@@ -167,17 +173,17 @@ model Medicao {
   id         Int       @id @default(autoincrement())
   variavelId Int       @map("variavel_id")
   visitaId   Int       @map("visita_id")
-  valorNum   Decimal?  @db.Decimal(10, 4) @map("valor_num")
-  valorText  String?   @db.Text @map("valor_text")
+  valorNum   Decimal?  @map("valor_num") @db.Decimal(10, 4)
+  valorText  String?   @map("valor_text") @db.Text
   lado       String?   @db.VarChar(1)
   createdBy  Int       @map("created_by")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
 
-  variavel   Variavel     @relation(fields: [variavelId], references: [id], onDelete: Cascade)
-  visita     Visita       @relation(fields: [visitaId], references: [id], onDelete: Cascade)
-  usuario    Usuario      @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  variavel Variavel @relation(fields: [variavelId], references: [id], onDelete: Cascade)
+  visita   Visita   @relation(fields: [visitaId], references: [id], onDelete: Cascade)
+  usuario  Usuario  @relation(fields: [createdBy], references: [id], onDelete: Restrict)
 
   @@map("medicoes")
 }

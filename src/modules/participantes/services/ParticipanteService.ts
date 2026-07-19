@@ -72,7 +72,7 @@ class ParticipanteService extends BaseService {
     async restaurar(participanteId: number) {
         const participante = await this.participanteRepository.findByIdIncludingDeleted(participanteId);
         if (!participante) {
-            throw new AppError('PARTICIPANT_NOT_FOUND', 'participante não encontrado.', HttpStatus.NOT_FOUND);
+            throw new AppError('PARTICIPANT_NOT_FOUND', 'Participante não encontrado.', HttpStatus.NOT_FOUND);
         }
         
         if (participante.deletedAt === null) {

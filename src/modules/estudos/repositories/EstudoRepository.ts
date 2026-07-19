@@ -16,7 +16,7 @@ class EstudoRepository extends BaseRepository {
     return this.prisma.estudo.create({
       data: {
         nome: data.nome,
-        sigla: data.sigla ?? null,
+        sigla: data.sigla,
         descricao: data.descricao ?? null,
       }
     });
