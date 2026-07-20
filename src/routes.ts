@@ -11,6 +11,7 @@ import ParticipanteController from './modules/participantes/controllers/Particip
 import VariavelController from './modules/variaveis/controllers/VariavelController';
 import ParticipanteEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
 import ParticipacaoEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
+import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisitaController';
 
 const routes = Router();
 
@@ -42,6 +43,18 @@ routes.get('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, async
 routes.post('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.vincularAoEstudo))
 routes.delete('/api/estudos/:estudoId/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.desvinculaAoEstudo))
 
+// TIPOS DE VISITA
+routes.get('/api/estudos/:estudoId/tipos-visita', autenticacaoMiddleware, asyncHandler(TiposVisitaController.listarPorEstudo))
+
+/*
+GET /api/estudos/:estudoId/tipos-visita
+GET BYID
+POST /api/estudos/:estudoId/tipos-visita
+PATCH /api/tipos-visita/:tipoVisitaId
+DELETE /api/tipos-visita/:tipoVisitaId\
+BUSCA EXCLUIDAS
+RESTAURA
+*/
 
 // PERMISSOES POR ESTUDO
 routes.get('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.listar))

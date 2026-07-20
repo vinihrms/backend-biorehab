@@ -75,7 +75,7 @@ class VariavelController {
       res,
       {
         data: null,
-        message: 'Estudo deletado com sucesso!'
+        message: 'Variável deletada com sucesso!'
       },
       HttpStatus.OK
     );

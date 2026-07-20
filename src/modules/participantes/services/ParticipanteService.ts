@@ -74,7 +74,7 @@ class ParticipanteService extends BaseService {
         if (!participante) {
             throw new AppError('PARTICIPANT_NOT_FOUND', 'Participante não encontrado.', HttpStatus.NOT_FOUND);
         }
-        
+
         if (participante.deletedAt === null) {
             throw new AppError(
                 'PARTICIPANT_ALREADY_ACTIVE',

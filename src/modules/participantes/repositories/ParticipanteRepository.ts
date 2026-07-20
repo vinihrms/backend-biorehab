@@ -77,7 +77,7 @@ class ParticipanteRepository extends BaseRepository {
     });
   }
 
-   async findByIdIncludingDeleted(participanteId: number): Promise<Participante | null> {
+  async findByIdIncludingDeleted(participanteId: number): Promise<Participante | null> {
     return this.prisma.participante.findUnique({
       where: {
         id: participanteId
