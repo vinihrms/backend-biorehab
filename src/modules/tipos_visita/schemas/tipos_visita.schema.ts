@@ -1,18 +1,16 @@
 import { Sexo } from '@prisma/client';
 import { z } from 'zod';
 
-export const criarParticipanteSchema = z.object({
+export const criarTipoVisita = z.object({
   nome: z.string().min(3).max(100),
-  telefone: z.string().max(15).regex(/^\d{10,15}$/),
-  sexo: z.nativeEnum(Sexo),
-  nascimento: z.coerce.date(),
+  descricao: z.string().max(200).optional(),
 });
 
-export const atualizarParticipanteSchema = criarParticipanteSchema.partial();
+export const atualizarTipoVisita = criarTipoVisita.partial();
 
-export type CriarParticipanteInput = z.infer<
-  typeof criarParticipanteSchema
+export type CriarTipoVisitaInput = z.infer<
+  typeof criarTipoVisita
 >;
 
-export type atualizarParticipanteSchema =
-  z.infer<typeof atualizarParticipanteSchema>;
+export type atualizarTipoVisita =
+  z.infer<typeof atualizarTipoVisita>;

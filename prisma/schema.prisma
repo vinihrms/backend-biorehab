@@ -83,6 +83,7 @@ model Participante {
 model TipoVisita {
   id        Int       @id @default(autoincrement())
   nome      String    @db.VarChar(100)
+  descricao String?    @db.VarChar(200)
   estudoId  Int       @map("estudo_id")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")

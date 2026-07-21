@@ -9,75 +9,116 @@ import estudoController from './modules/estudos/controllers/EstudoController';
 import PermissaoEstudoController from './modules/permissao_estudos/controllers/PermissaoEstudoController';
 import ParticipanteController from './modules/participantes/controllers/ParticipanteController';
 import VariavelController from './modules/variaveis/controllers/VariavelController';
-import ParticipanteEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
 import ParticipacaoEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
 import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisitaController';
 
 const routes = Router();
+// ============================================================================
+// AUTENTICAÇÃO
+// ============================================================================
 
 routes.post('/api/auth/cadastro', asyncHandler(authController.cadastrar));
 routes.post('/api/auth/login', asyncHandler(authController.login));
 
-routes.get('/api/auth/me', autenticacaoMiddleware, (req: RequestAutenticado, res: Response) => {
-  return sendSuccess(
-    res,
-    {
-      data: req.usuarioLogado ?? null,
-      message: 'Voce acessou uma rota protegida com sucesso!'
-    },
-    HttpStatus.OK
-  );
-});
+routes.get(
+  '/api/auth/me',
+  autenticacaoMiddleware,
+  (req: RequestAutenticado, res: Response) => {
+    return sendSuccess(
+      res,
+      {
+        data: req.usuarioLogado ?? null,
+        message: 'Voce acessou uma rota protegida com sucesso!'
+      },
+      HttpStatus.OK
+    );
+  }
+);
 
-// ROTAS REFERENTES A ESTUDOS
-routes.get('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.listar))
-routes.get('/api/estudos/excluidos', autenticacaoMiddleware, asyncHandler(estudoController.listarExcluidos))
-routes.get('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.buscarPorId))
-routes.post('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.criar))
-routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.atualizar))
-routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar))
-routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar))
+// ============================================================================
+// ESTUDOS
+// ============================================================================
 
-// RELAÇÃO PARTICIPANTE x ESTUDO
-routes.get('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.listarPorEstudo))
-routes.post('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.vincularAoEstudo))
-routes.delete('/api/estudos/:estudoId/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.desvinculaAoEstudo))
+routes.get('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.listar));
+routes.get('/api/estudos/excluidos', autenticacaoMiddleware, asyncHandler(estudoController.listarExcluidos));
+routes.get('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.buscarPorId));
 
+routes.post('/api/estudos', autenticacaoMiddleware, asyncHandler(estudoController.criar));
+
+routes.patch('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.atualizar));
+
+routes.delete('/api/estudos/:estudoId', autenticacaoMiddleware, asyncHandler(estudoController.deletar));
+
+routes.patch('/api/estudos/:estudoId/restaurar', autenticacaoMiddleware, asyncHandler(estudoController.restaurar));
+
+// ============================================================================
+// PERMISSÕES DO ESTUDO
+// ============================================================================
+
+routes.get('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.listar));
+
+routes.post('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.criar));
+
+routes.patch('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.atualizar));
+
+routes.delete('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.deletar));
+
+// ============================================================================
+// PARTICIPANTES DO ESTUDO
+// ============================================================================
+
+routes.get('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.listarPorEstudo));
+
+routes.post('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.vincularAoEstudo));
+
+routes.delete('/api/estudos/:estudoId/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.desvinculaAoEstudo));
+
+// ============================================================================
+// VARIÁVEIS
+// ============================================================================
+
+routes.get('/api/estudos/:estudoId/variaveis', autenticacaoMiddleware, asyncHandler(VariavelController.listar));
+routes.get('/api/estudos/:estudoId/variaveis/excluidas', autenticacaoMiddleware, asyncHandler(VariavelController.listarExcluidas));
+routes.get('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.listarPorId));
+
+routes.post('/api/estudos/:estudoId/variaveis', autenticacaoMiddleware, asyncHandler(VariavelController.criar));
+
+routes.patch('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.atualizar));
+
+routes.delete('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.deletar));
+
+routes.patch('/api/estudos/:estudoId/variaveis/:variavelId/restaurar', autenticacaoMiddleware, asyncHandler(VariavelController.restaurar));
+
+// ============================================================================
 // TIPOS DE VISITA
-routes.get('/api/estudos/:estudoId/tipos-visita', autenticacaoMiddleware, asyncHandler(TiposVisitaController.listarPorEstudo))
+// ============================================================================
 
-/*
-GET /api/estudos/:estudoId/tipos-visita
-GET BYID
-POST /api/estudos/:estudoId/tipos-visita
-PATCH /api/tipos-visita/:tipoVisitaId
-DELETE /api/tipos-visita/:tipoVisitaId\
-BUSCA EXCLUIDAS
-RESTAURA
-*/
+routes.get('/api/estudos/:estudoId/tipos-visita', autenticacaoMiddleware, asyncHandler(TiposVisitaController.listarPorEstudo));
+routes.get('/api/estudos/:estudoId/tipos-visita/excluidos', autenticacaoMiddleware, asyncHandler(TiposVisitaController.buscaExcluidos));
+routes.get('/api/estudos/:estudoId/tipos-visita/:tipoVisitaId', autenticacaoMiddleware, asyncHandler(TiposVisitaController.getVisitaById));
 
-// PERMISSOES POR ESTUDO
-routes.get('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.listar))
-routes.post('/api/estudos/:estudoId/permissoes', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.criar))
-routes.patch('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.atualizar))
-routes.delete('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddleware, asyncHandler(PermissaoEstudoController.deletar))
+routes.post('/api/estudos/:estudoId/tipos-visita', autenticacaoMiddleware, asyncHandler(TiposVisitaController.criaTipoDeVisita));
 
-// VARIAVEIS
-routes.get('/api/estudos/:estudoId/variaveis', autenticacaoMiddleware, asyncHandler(VariavelController.listar))
-routes.get('/api/estudos/:estudoId/variaveis/excluidas', autenticacaoMiddleware, asyncHandler(VariavelController.listarExcluidas))
-routes.get('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.listarPorId))
-routes.post('/api/estudos/:estudoId/variaveis', autenticacaoMiddleware, asyncHandler(VariavelController.criar))
-routes.patch('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.atualizar))
-routes.delete('/api/estudos/:estudoId/variaveis/:variavelId', autenticacaoMiddleware, asyncHandler(VariavelController.deletar))
-routes.patch('/api/estudos/:estudoId/variaveis/:variavelId/restaurar', autenticacaoMiddleware, asyncHandler(VariavelController.restaurar))
+routes.patch('/api/estudos/:estudoId/tipos-visita/:tipoVisitaId', autenticacaoMiddleware, asyncHandler(TiposVisitaController.atualiza));
 
-// ROTAS PARTICIPANTES
-routes.get('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.listar))
-routes.get('/api/participantes/excluidos', autenticacaoMiddleware, asyncHandler(ParticipanteController.listarExcluidos))
-routes.get('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.buscaPorId))
-routes.post('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.criar))
-routes.patch('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.atualizar))
-routes.patch('/api/participantes/:participanteId/restaurar', autenticacaoMiddleware, asyncHandler(ParticipanteController.restaurar))
-routes.delete('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.deletar))
+routes.delete('/api/estudos/:estudoId/tipos-visita/:tipoVisitaId', autenticacaoMiddleware, asyncHandler(TiposVisitaController.apagar));
+
+routes.patch('/api/estudos/:estudoId/tipos-visita/:tipoVisitaId/restaurar', autenticacaoMiddleware, asyncHandler(TiposVisitaController.restaura));
+
+// ============================================================================
+// PARTICIPANTES
+// ============================================================================
+
+routes.get('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.listar));
+routes.get('/api/participantes/excluidos', autenticacaoMiddleware, asyncHandler(ParticipanteController.listarExcluidos));
+routes.get('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.buscaPorId));
+
+routes.post('/api/participantes', autenticacaoMiddleware, asyncHandler(ParticipanteController.criar));
+
+routes.patch('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.atualizar));
+
+routes.delete('/api/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipanteController.deletar));
+
+routes.patch('/api/participantes/:participanteId/restaurar', autenticacaoMiddleware, asyncHandler(ParticipanteController.restaurar));
 
 export default routes;

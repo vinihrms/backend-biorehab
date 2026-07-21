@@ -48,7 +48,6 @@ class EstudoService extends BaseService {
             Papel.owner
         );
 
-
         return estudo;
     }
 
@@ -63,7 +62,7 @@ class EstudoService extends BaseService {
             );
         }
 
-        if(usuario.isAdmin){
+        if (usuario.isAdmin) {
             return this.estudoRepository.findAll();
         }
 
@@ -72,9 +71,9 @@ class EstudoService extends BaseService {
 
     async getById(userId: number, estudoId: number) {
         await this.studyAuthorization.canView(userId, estudoId);
-        
+
         const estudo = await this.estudoRepository.findById(estudoId);
-        
+
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
         }
@@ -152,7 +151,7 @@ class EstudoService extends BaseService {
         }
 
         return this.estudoRepository.restaura(estudoId);
-        
+
     }
 }
 
