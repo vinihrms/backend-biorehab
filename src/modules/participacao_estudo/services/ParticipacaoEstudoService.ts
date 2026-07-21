@@ -54,6 +54,37 @@ class ParticipacaoEstudoService extends BaseService {
         return participantes;
     }
 
+
+    async listarPorEstudoEParticipanteId(usuarioId: number, estudoId: number, participanteId: number) {
+        await this.estudoExiste(estudoId);
+        await this.studyAuthorization.canView(usuarioId, estudoId);
+        const participante = await this.participanteRepository.findById(participanteId);
+
+        if (!participante) {
+            throw new AppError(
+                'PARTICIPANTE_NOT_FOUND',
+                'Participante não existe ou não está vinculado a este estudo.',
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        const participacao =
+            await this.participacaoEstudoRepository.buscaParticipacao(
+                estudoId,
+                participanteId
+            );
+
+        if (!participacao) {
+            throw new AppError(
+                "PARTICIPACAO_NOT_FOUND",
+                "Participante não está vinculado a este estudo.",
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        return participacao;
+    }
+
     async vincularAoEstudo(usuarioId: number, estudoId: number, dadosValidados: CriarParticipacaoInput) {
         const estudo = await this.estudoExiste(estudoId);
         await this.studyAuthorization.canLinkParticipant(usuarioId, estudoId);
@@ -65,23 +96,73 @@ class ParticipacaoEstudoService extends BaseService {
         return participacaoEstudo;
     }
 
-    async desvincularAoEstudo(usuarioId: number, estudoId: number, partiticipanteId: number) {
+    async desvincularAoEstudo(usuarioId: number, estudoId: number, participanteId: number) {
         await this.estudoExiste(estudoId);
         await this.studyAuthorization.canLinkParticipant(usuarioId, estudoId);
 
+        const participacao = await this.participacaoEstudoRepository.buscarPorIdCom(
+            estudoId,
+            participanteId
+        );
 
-        const estaNoEstudo = await this.participacaoEstudoRepository.buscaParticipacao(estudoId, partiticipanteId)
-
-        if (!estaNoEstudo) {
-            throw new AppError('PARTICIPANTE_NOT_VINCULADO', 'Participante não está vinculado a este estudo.', HttpStatus.NOT_FOUND);
+        if (!participacao) {
+            throw new AppError(
+                'PARTICIPACAO_NOT_FOUND',
+                'Participante não está vinculado a este estudo.',
+                HttpStatus.NOT_FOUND
+            );
         }
 
-        //TODO: Fazer verificação se há dados vinculados a este participante
+        if (participacao.deletedAt !== null) {
+            throw new AppError(
+                'PARTICIPACAO_ALREADY_DELETED',
+                'Esta participação já foi removida.',
+                HttpStatus.CONFLICT
+            );
+        }
 
-        const participacaoEstudo = await this.participacaoEstudoRepository.desvincularAoEstudo(estudoId, partiticipanteId);
+        // TODO:
+        // Verificar se existem visitas cadastradas para esta participação.
+        // Se houver, decidir se impede a exclusão ou se aplica cascade lógico.
 
-        return participacaoEstudo;
+        return this.participacaoEstudoRepository.apagar(participacao.id);
     }
+
+
+    async listarExcluidos(usuarioId: number, estudoId: number) {
+        await this.estudoExiste(estudoId);
+        await this.studyAuthorization.canView(usuarioId, estudoId);
+
+        const participantes = await this.participacaoEstudoRepository.listarExcluidos(estudoId);
+
+        return participantes;
+    }
+
+    async restaurar(userId: number, estudoId: number, participanteId: number) {
+        await this.studyAuthorization.estudoExiste(estudoId);
+        await this.studyAuthorization.canLinkParticipant(userId, estudoId);
+        const participacao = await this.participacaoEstudoRepository.buscarPorIdCom(estudoId, participanteId);
+
+        if (!participacao) {
+            throw new AppError(
+                "PARTICIPACAO_NOT_FOUND",
+                "Participação não encontrada.",
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        if (participacao.deletedAt === null) {
+            throw new AppError(
+                'PARTICIPACAO_ALREADY_ACTIVE',
+                'Este participação já está ativa.',
+                HttpStatus.CONFLICT
+            );
+        }
+
+        return this.participacaoEstudoRepository.restaura(participacao.id);
+
+    }
+
 }
 
 export default ParticipacaoEstudoService;

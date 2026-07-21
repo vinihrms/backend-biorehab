@@ -7,7 +7,21 @@ class ParticipacaoEstudoRepository extends BaseRepository {
     async listaPorEstudo(estudoId: number) {
         return this.prisma.participacaoEstudo.findMany({
             where: {
-                estudoId: estudoId
+                estudoId: estudoId, deletedAt: null
+            },
+            include: {
+                participante: true
+            },
+            orderBy: {
+                codigo: "asc"
+            }
+        });
+    }
+
+    async listarExcluidos(estudoId: number) {
+        return this.prisma.participacaoEstudo.findMany({
+            where: {
+                estudoId: estudoId, deletedAt: { not: null }
             },
             include: {
                 participante: true
@@ -43,24 +57,49 @@ class ParticipacaoEstudoRepository extends BaseRepository {
         });
     }
 
-    async desvincularAoEstudo(estudoId: number, participanteId: number) {
-        return this.prisma.participacaoEstudo.delete({
+    async apagar(id: number) {
+        return this.prisma.participacaoEstudo.update({
             where: {
-                estudoId_participanteId: { estudoId, participanteId }
+                id
             },
+            data: {
+                deletedAt: new Date()
+            }
         });
     }
+
 
     async buscaParticipacao(estudoId: number, participanteId: number) {
-        return this.prisma.participacaoEstudo.findUnique({
+        return this.prisma.participacaoEstudo.findFirst({
             where: {
-                estudoId_participanteId: {
-                    estudoId,
-                    participanteId
-                }
+                estudoId,
+                participanteId,
+                deletedAt: null
             },
+            include: {
+                participante: true
+            }
         });
     }
 
+    async buscarPorIdCom(estudoId: number, participanteId: number) {
+        return this.prisma.participacaoEstudo.findFirst({
+            where: {
+                estudoId,
+                participanteId
+            }
+        });
+    }
+
+    async restaura(participacaoId: number) {
+        return this.prisma.participacaoEstudo.update({
+            where: {
+                id: participacaoId
+            },
+            data: {
+                deletedAt: null
+            }
+        });
+    }
 }
 export default ParticipacaoEstudoRepository;

@@ -1,5 +1,3 @@
-import { TipoVisitaOmit } from './../../../../node_modules/.prisma/client/index.d';
-import { Prisma, ParticipacaoEstudo, Participante } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
 import { atualizarTipoVisita, CriarTipoVisitaInput } from '../schemas/tipos_visita.schema';
 
@@ -74,7 +72,7 @@ class TiposVisitaRepository extends BaseRepository {
   }
 
   async buscaExcluidos(estudoId: number) {
-    return this.prisma.tipoVisita.findFirst({
+    return this.prisma.tipoVisita.findMany({
       where: {
         estudoId,
         deletedAt: {not: null},

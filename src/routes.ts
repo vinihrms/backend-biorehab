@@ -68,10 +68,16 @@ routes.delete('/api/estudos/:estudoId/permissoes/:usuarioId', autenticacaoMiddle
 // ============================================================================
 
 routes.get('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.listarPorEstudo));
+routes.get('/api/estudos/:estudoId/participantes/excluidos', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.listarExcluidos));
+routes.get('/api/estudos/:estudoId/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.buscaParticipacao));
+
 
 routes.post('/api/estudos/:estudoId/participantes', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.vincularAoEstudo));
 
+routes.patch('/api/estudos/:estudoId/participantes/:participanteId/restaurar', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.restaurar));
 routes.delete('/api/estudos/:estudoId/participantes/:participanteId', autenticacaoMiddleware, asyncHandler(ParticipacaoEstudoController.desvinculaAoEstudo));
+
+
 
 // ============================================================================
 // VARIÁVEIS
@@ -121,4 +127,31 @@ routes.delete('/api/participantes/:participanteId', autenticacaoMiddleware, asyn
 
 routes.patch('/api/participantes/:participanteId/restaurar', autenticacaoMiddleware, asyncHandler(ParticipanteController.restaurar));
 
+
+// ============================================================================
+// VISITAS
+// ============================================================================
+
+/*
+GET    /api/participacoes/:participacaoId/visitas
+GET    /api/participacoes/:participacaoId/visitas/excluidas
+GET    /api/participacoes/:participacaoId/visitas/:visitaId
+POST   /api/participacoes/:participacaoId/visitas
+PATCH  /api/participacoes/:participacaoId/visitas/:visitaId
+DELETE /api/participacoes/:participacaoId/visitas/:visitaId
+PATCH  /api/participacoes/:participacaoId/visitas/:visitaId/restaurar
+*/
+
+// ============================================================================
+// MEDIÇÕES
+// ============================================================================
+
+/*
+GET    /api/visitas/:visitaId/medicoes
+GET    /api/visitas/:visitaId/medicoes/:medicaoId
+POST   /api/visitas/:visitaId/medicoes
+PATCH  /api/visitas/:visitaId/medicoes/:medicaoId
+DELETE /api/visitas/:visitaId/medicoes/:medicaoId
+PATCH  /api/visitas/:visitaId/medicoes/:medicaoId/restaurar
+*/
 export default routes;

@@ -1,5 +1,4 @@
 import { atualizarTipoVisita, CriarTipoVisitaInput, } from '../schemas/tipos_visita.schema';
-import ParticipanteRepository from '../repositories/TiposVisitaRepository';
 import { AppError } from '../../../errors/app-error';
 import { BaseService } from '../../../services/base.service';
 import { HttpStatus } from '../../../utils/http-status';
@@ -43,7 +42,7 @@ class TiposVisitaService extends BaseService {
         const tipoVisita = await this.tiposVisitaRepository.buscaPorId(estudoId, tipoVisitaId);
 
         if (!tipoVisita) {
-            throw new AppError('TIPO-VISITA_NOT_FOUND', 'Tipo de visita não encontrado.', HttpStatus.NOT_FOUND);
+            throw new AppError('TIPO_VISITA_NOT_FOUND', 'Tipo de visita não encontrado.', HttpStatus.NOT_FOUND);
         }
 
         return tipoVisita;
@@ -102,10 +101,6 @@ class TiposVisitaService extends BaseService {
 
         const tiposVisita = await this.tiposVisitaRepository.buscaExcluidos(estudoId);
 
-        if (!tiposVisita) {
-            throw new AppError('TIPO-VISITA_NOT_FOUND', 'Tipos de visita não encontrados.', HttpStatus.NOT_FOUND);
-        }
-
         return tiposVisita;
 
     }
@@ -125,16 +120,13 @@ class TiposVisitaService extends BaseService {
 
         if (tipoVisita.deletedAt === null) {
             throw new AppError(
-                'TIPO-VISITA_ALREADY_ACTIVE',
+                'TIPO_VISITA_ALREADY_ACTIVE',
                 'Este tipo de visita já está ativo.',
                 HttpStatus.CONFLICT
             );
         }
 
         return this.tiposVisitaRepository.restaura(tipoVisitaId);
-
-
-    
 
     }
 
