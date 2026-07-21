@@ -1,4 +1,4 @@
-# 🧠 Sistema de Coleta e Gestão de Dados Científicos para Pesquisas em Fisioterapia
+# 🧠 Sistema de Coleta e Gestão de Dados Científicos para Pesquisas em Fisioterapia - RehabDATA
 ## Projeto de Extensão II 2026 em parceria com o Biorehab Lab.
 
 ## 🎯 Proposta do Projeto
@@ -32,6 +32,6 @@ Node.js + Express + Prisma + Zod + JWT + bcrypt + MySQL
 
 ## 📚 Sobre
 Este sistema é um motor flexível para coleta, armazenamento e análise de dados científicos, pronto para evoluir e ser usado em pesquisas reais de fisioterapia.
-# Refebi Data
+# RehabDATA
 
 
