@@ -1,4 +1,4 @@
-import { Variavel } from '@prisma/client';
+import { Variavel, ParticipacaoEstudo } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
 import { number } from 'zod';
 import { AtualizarVisitaInput, CriarVisitaInput } from '../schemas/visita.schema';
@@ -17,6 +17,21 @@ class VisitaRepository extends BaseRepository {
             orderBy: {
                 data: "asc"
             }
+        });
+    }
+
+    async buscaVisitaPorId(visitaId: number){
+        return this.prisma.visita.findFirst({
+            where: {
+                id: visitaId,
+            },
+            include: {
+                participacaoEstudo: {
+                    include: {
+                        estudo: true
+                    }
+                }
+            },
         });
     }
 

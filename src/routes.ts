@@ -12,6 +12,7 @@ import VariavelController from './modules/variaveis/controllers/VariavelControll
 import ParticipacaoEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
 import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisitaController';
 import VisitaController from './modules/visitas/controllers/VisitaController';
+import MedicaoController from './modules/medicoes/controllers/MedicaoController';
 
 const routes = Router();
 // ============================================================================
@@ -146,12 +147,12 @@ routes.patch('/api/participacoes/:participacaoId/visitas/:visitaId/restaurar', a
 // MEDIÇÕES
 // ============================================================================
 
-/*
-GET    /api/visitas/:visitaId/medicoes
-GET    /api/visitas/:visitaId/medicoes/:medicaoId
-POST   /api/visitas/:visitaId/medicoes
-PATCH  /api/visitas/:visitaId/medicoes/:medicaoId
-DELETE /api/visitas/:visitaId/medicoes/:medicaoId
-PATCH  /api/visitas/:visitaId/medicoes/:medicaoId/restaurar
-*/
+routes.get('/api/visitas/:visitaId/medicoes', autenticacaoMiddleware, asyncHandler(MedicaoController.listar));
+routes.get('/api/visitas/:visitaId/medicoes/excluidas', autenticacaoMiddleware, asyncHandler(MedicaoController.listarExcluidas));
+routes.get('/api/visitas/:visitaId/medicoes/:medicaoId', autenticacaoMiddleware, asyncHandler(MedicaoController.buscarPorId));
+routes.post('/api/visitas/:visitaId/medicoes', autenticacaoMiddleware, asyncHandler(MedicaoController.criar));
+routes.patch('/api/visitas/:visitaId/medicoes/:medicaoId', autenticacaoMiddleware, asyncHandler(MedicaoController.atualizar));
+routes.delete('/api/visitas/:visitaId/medicoes/:medicaoId', autenticacaoMiddleware, asyncHandler(MedicaoController.deletar));
+routes.patch('/api/visitas/:visitaId/medicoes/:medicaoId/restaurar', autenticacaoMiddleware, asyncHandler(MedicaoController.restaurar));
+
 export default routes;
