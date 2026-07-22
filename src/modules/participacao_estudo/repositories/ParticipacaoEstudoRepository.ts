@@ -73,7 +73,7 @@ class ParticipacaoEstudoRepository extends BaseRepository {
         return this.prisma.participacaoEstudo.findUnique({
             where: {
                 id: participacaoId,
-                deletedAt: {not: null}
+                deletedAt: null
             }
         })
     }
