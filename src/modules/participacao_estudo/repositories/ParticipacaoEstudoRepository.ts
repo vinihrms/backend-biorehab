@@ -1,6 +1,7 @@
 import { Prisma, ParticipacaoEstudo, Participante } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
 import { atualizarParticipacaoEstudo, criarParticipacaoEstudo, CriarParticipacaoInput } from '../schemas/participacao_estudo.schema';
+import id from 'zod/v4/locales/id.js';
 
 class ParticipacaoEstudoRepository extends BaseRepository {
 
@@ -66,6 +67,15 @@ class ParticipacaoEstudoRepository extends BaseRepository {
                 deletedAt: new Date()
             }
         });
+    }
+
+    async buscaParticipacaoPorId(participacaoId: number){
+        return this.prisma.participacaoEstudo.findUnique({
+            where: {
+                id: participacaoId,
+                deletedAt: {not: null}
+            }
+        })
     }
 
 

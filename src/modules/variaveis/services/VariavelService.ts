@@ -1,12 +1,12 @@
 
-import { BaseService } from '../../../services/base.service';
-import { AppError } from '../../../errors/app-error';
-import { HttpStatus } from '../../../utils/http-status';
 import StudyAuthorization from '../../../authorization/StudyAuthorization';
+import { AppError } from '../../../errors/app-error';
+import { BaseService } from '../../../services/base.service';
+import { HttpStatus } from '../../../utils/http-status';
 import VariavelRepository from '../repositories/VariavelRepository';
 
-import { AtualizarVariavelInput, CriarVariavelInput } from '../schemas/variavel.schema';
 import EstudoRepository from '../../estudos/repositories/EstudoRepository';
+import { AtualizarVariavelInput, CriarVariavelInput } from '../schemas/variavel.schema';
 
 
 class VariavelService extends BaseService {

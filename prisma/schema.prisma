@@ -125,6 +125,8 @@ model Visita {
   usuario            Usuario            @relation(fields: [createdBy], references: [id], onDelete: Restrict)
 
   medicoes       Medicao[]
+  @@unique([participacaoEstudoId, tipoVisitaId])
+
 
   @@map("visitas")
 }

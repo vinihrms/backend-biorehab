@@ -11,6 +11,7 @@ import ParticipanteController from './modules/participantes/controllers/Particip
 import VariavelController from './modules/variaveis/controllers/VariavelController';
 import ParticipacaoEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
 import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisitaController';
+import VisitaController from './modules/visitas/controllers/VisitaController';
 
 const routes = Router();
 // ============================================================================
@@ -132,15 +133,14 @@ routes.patch('/api/participantes/:participanteId/restaurar', autenticacaoMiddlew
 // VISITAS
 // ============================================================================
 
-/*
-GET    /api/participacoes/:participacaoId/visitas
-GET    /api/participacoes/:participacaoId/visitas/excluidas
-GET    /api/participacoes/:participacaoId/visitas/:visitaId
-POST   /api/participacoes/:participacaoId/visitas
-PATCH  /api/participacoes/:participacaoId/visitas/:visitaId
-DELETE /api/participacoes/:participacaoId/visitas/:visitaId
-PATCH  /api/participacoes/:participacaoId/visitas/:visitaId/restaurar
-*/
+routes.get('/api/participacoes/:participacaoId/visitas', autenticacaoMiddleware, asyncHandler(VisitaController.listar));
+routes.get('/api/participacoes/:participacaoId/visitas/excluidas', autenticacaoMiddleware, asyncHandler(VisitaController.listarExcluidas));
+routes.get('/api/participacoes/:participacaoId/visitas/:visitaId', autenticacaoMiddleware, asyncHandler(VisitaController.buscarPorId));
+routes.post('/api/participacoes/:participacaoId/visitas', autenticacaoMiddleware, asyncHandler(VisitaController.criar));
+routes.patch('/api/participacoes/:participacaoId/visitas/:visitaId', autenticacaoMiddleware, asyncHandler(VisitaController.atualizar));
+routes.delete('/api/participacoes/:participacaoId/visitas/:visitaId', autenticacaoMiddleware, asyncHandler(VisitaController.deletar));
+routes.patch('/api/participacoes/:participacaoId/visitas/:visitaId/restaurar', autenticacaoMiddleware, asyncHandler(VisitaController.restaurar));
+
 
 // ============================================================================
 // MEDIÇÕES
