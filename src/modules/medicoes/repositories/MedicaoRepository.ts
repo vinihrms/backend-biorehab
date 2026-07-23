@@ -10,7 +10,8 @@ class MedicaoRepository extends BaseRepository {
                 deletedAt: null
             },
             include: {
-                variavel: true
+                variavel: true,
+                visita: true
             },
             orderBy: {
                 variavel: {
@@ -28,7 +29,8 @@ class MedicaoRepository extends BaseRepository {
                 deletedAt: null
             },
             include: {
-                variavel: true
+                variavel: true,
+                visita: true
             }
         });
     }

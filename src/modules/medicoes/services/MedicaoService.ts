@@ -262,7 +262,7 @@ class MedicaoService extends BaseService {
 
         await this.studyAuthorization.canLinkParticipant(usuarioId, visita.participacaoEstudo.estudoId);
         
-        const medicao = await this.medicaoRepository.buscaPorId(visitaId, medicaoId);
+        const medicao = await this.medicaoRepository.buscaPorIdComDeletado(visitaId, medicaoId);
         if (!medicao) {
             throw new AppError('MEDICAO_NOT_FOUND', 'Medição não encontrada.', HttpStatus.NOT_FOUND);
         }

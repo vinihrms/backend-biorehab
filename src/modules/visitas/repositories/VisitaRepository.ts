@@ -1,3 +1,4 @@
+import { CriarMedicaoInput } from './../../medicoes/schemas/medicao.schema';
 import { Variavel, ParticipacaoEstudo } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
 import { number } from 'zod';
@@ -12,7 +13,8 @@ class VisitaRepository extends BaseRepository {
                 deletedAt: null
             },
             include: {
-                tipoVisita: true
+                tipoVisita: true,
+                medicoes: true
             },
             orderBy: {
                 data: "asc"
