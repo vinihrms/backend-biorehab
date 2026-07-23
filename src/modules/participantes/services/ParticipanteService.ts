@@ -3,8 +3,10 @@ import ParticipanteRepository from '../repositories/ParticipanteRepository';
 import { AppError } from '../../../errors/app-error';
 import { BaseService } from '../../../services/base.service';
 import { HttpStatus } from '../../../utils/http-status';
+import ParticipacaoEstudoRepository from '../../participacao_estudo/repositories/ParticipacaoEstudoRepository';
 class ParticipanteService extends BaseService {
     private participanteRepository = new ParticipanteRepository();
+    private participacaoEstudoRepository = new ParticipacaoEstudoRepository()
 
     async create(data: CriarParticipanteInput, userId: number) {
         //const usuario = await this.adminAuthorization.isAdmin(userId);
@@ -60,6 +62,16 @@ class ParticipanteService extends BaseService {
         const participante = await this.participanteRepository.findById(participanteId);
         if (!participante) {
             throw new AppError('PARTICIPANT_NOT_FOUND', 'Participante não encontrado.', HttpStatus.NOT_FOUND);
+        }
+
+        const possuiParticipacoes = await this.participacaoEstudoRepository.existePorParticipante(participanteId);
+
+        if (possuiParticipacoes) {
+            throw new AppError(
+                'PARTICIPANTE_HAS_STUDIES',
+                'Não é possível excluir um participante vinculado a estudos.',
+                HttpStatus.CONFLICT
+            );
         }
 
         return this.participanteRepository.softDelete(participanteId);

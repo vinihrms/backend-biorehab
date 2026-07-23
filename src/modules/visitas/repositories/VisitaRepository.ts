@@ -147,5 +147,16 @@ class VisitaRepository extends BaseRepository {
             }
         });
     }
+
+    async existePorParticipacao(participacaoId: number) {
+    return this.prisma.visita.findFirst({
+        where: {
+            participacaoEstudoId: participacaoId
+        },
+        select: {
+            id: true
+        }
+    });
+}
 }
 export default VisitaRepository;

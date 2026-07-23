@@ -69,7 +69,7 @@ class ParticipacaoEstudoRepository extends BaseRepository {
         });
     }
 
-    async buscaParticipacaoPorId(participacaoId: number){
+    async buscaParticipacaoPorId(participacaoId: number) {
         return this.prisma.participacaoEstudo.findUnique({
             where: {
                 id: participacaoId,
@@ -111,5 +111,17 @@ class ParticipacaoEstudoRepository extends BaseRepository {
             }
         });
     }
+
+    async existePorParticipante(participanteId: number): Promise<boolean> {
+        const total = await this.prisma.participacaoEstudo.count({
+            where: {
+                participanteId,
+                deletedAt: null
+            }
+        });
+
+        return total > 0;
+    }
+
 }
 export default ParticipacaoEstudoRepository;

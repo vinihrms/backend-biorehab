@@ -8,11 +8,13 @@ import EstudoRepository from '../../estudos/repositories/EstudoRepository';
 import StudyAuthorization from '../../../authorization/StudyAuthorization';
 import { userInfo } from 'node:os';
 import ParticipanteRepository from '../../participantes/repositories/ParticipanteRepository';
+import VisitaRepository from '../../visitas/repositories/VisitaRepository';
 class ParticipacaoEstudoService extends BaseService {
     private participacaoEstudoRepository = new ParticipacaoEstudoRepository();
     private estudoRepository = new EstudoRepository();
     private studyAuthorization = new StudyAuthorization();
     private participanteRepository = new ParticipanteRepository();
+    private visitaRepository = new VisitaRepository();
 
     async estudoExiste(estudoId: number) {
         const estudo = await this.estudoRepository.findById(estudoId);
@@ -121,9 +123,17 @@ class ParticipacaoEstudoService extends BaseService {
             );
         }
 
-        // TODO:
-        // Verificar se existem visitas cadastradas para esta participação.
-        // Se houver, decidir se impede a exclusão ou se aplica cascade lógico.
+        // não remove partipante do estudo que já tem visita
+
+        const possuiVisitas = await this.visitaRepository.existePorParticipacao(participacao.id);
+
+        if (possuiVisitas) {
+            throw new AppError(
+                'PARTICIPACAO_HAS_VISITS',
+                'Não é possível remover a participação, pois existem visitas cadastradas.',
+                HttpStatus.CONFLICT
+            );
+        }
 
         return this.participacaoEstudoRepository.apagar(participacao.id);
     }
