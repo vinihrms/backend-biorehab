@@ -13,6 +13,7 @@ import ParticipacaoEstudoController from './modules/participacao_estudo/controll
 import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisitaController';
 import VisitaController from './modules/visitas/controllers/VisitaController';
 import MedicaoController from './modules/medicoes/controllers/MedicaoController';
+import ExportController from './modules/export/controllers/ExportController';
 
 const routes = Router();
 // ============================================================================
@@ -155,4 +156,11 @@ routes.patch('/api/visitas/:visitaId/medicoes/:medicaoId', autenticacaoMiddlewar
 routes.delete('/api/visitas/:visitaId/medicoes/:medicaoId', autenticacaoMiddleware, asyncHandler(MedicaoController.deletar));
 routes.patch('/api/visitas/:visitaId/medicoes/:medicaoId/restaurar', autenticacaoMiddleware, asyncHandler(MedicaoController.restaurar));
 
+// ============================================================================
+// EXPORTAÇÃO
+// ============================================================================
+
+routes.post("/api/estudos/:estudoId/exportar", autenticacaoMiddleware, asyncHandler(ExportController.exportar)
+);
+  
 export default routes;
