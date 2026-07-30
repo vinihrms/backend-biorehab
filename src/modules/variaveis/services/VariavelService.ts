@@ -7,19 +7,22 @@ import VariavelRepository from '../repositories/VariavelRepository';
 
 import EstudoRepository from '../../estudos/repositories/EstudoRepository';
 import { AtualizarVariavelInput, CriarVariavelInput } from '../schemas/variavel.schema';
+import StudyStatusValidation from '../../../validation/StudyStatusValidation';
 
 
 class VariavelService extends BaseService {
     private studyAuthorization = new StudyAuthorization();
     private variavelRepository = new VariavelRepository();
     private estudoRepository = new EstudoRepository();
-
+    private validacaoStatus = StudyStatusValidation;
 
     async estudoExiste(estudoId: number) {
         const estudo = await this.estudoRepository.findById(estudoId);
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
         }
+
+        return estudo;
     }
 
     async listaVariaveis(estudoId: number, userId: number) {
@@ -51,9 +54,12 @@ class VariavelService extends BaseService {
     }
 
     async criar(data: CriarVariavelInput, userId: number, estudoId: number) {
-        await this.estudoExiste(estudoId);
+        const estudo = await this.estudoExiste(estudoId);
 
         await this.studyAuthorization.canManageStudy(userId, estudoId);
+
+        await this.validacaoStatus.canEditStructure(estudo);
+        
 
         const variavelExistente = await this.variavelRepository.findByNameInStudy(data.nome, estudoId);
 

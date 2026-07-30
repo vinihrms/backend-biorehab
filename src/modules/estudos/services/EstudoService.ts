@@ -10,6 +10,7 @@ import StudyAuthorization from '../../../authorization/StudyAuthorization';
 import { number } from 'zod';
 import UsuarioRepository from '../../usuarios/repositories/UsuarioRepository';
 import AdminAuthorization from '../../../authorization/AdminAuthorization';
+import StudyStatusValidation from '../../../validation/StudyStatusValidation';
 
 
 class EstudoService extends BaseService {
@@ -19,6 +20,7 @@ class EstudoService extends BaseService {
     private studyAuthorization = new StudyAuthorization();
     private usuarioRepositorio = new UsuarioRepository();
     private adminAuthorization = new AdminAuthorization();
+    private validacaoStatus = StudyStatusValidation;
 
     async create(data: CriarEstudoInput, userId: number) {
         const usuario = await this.adminAuthorization.isAdmin(userId);
@@ -47,7 +49,7 @@ class EstudoService extends BaseService {
             usuario.id,
             Papel.owner,
         );
-
+        
         return estudo;
     }
 
@@ -87,6 +89,9 @@ class EstudoService extends BaseService {
         if (!estudo) {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
         }
+
+        await this.validacaoStatus.canEditStructure(estudo);
+
 
         if (data.nome) {
             const estudoExistente = await this.estudoRepository.findByName(data.nome);

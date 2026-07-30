@@ -8,13 +8,24 @@ import VisitaRepository from '../../visitas/repositories/VisitaRepository';
 import { AtualizarMedicaoInput, CriarMedicaoInput } from '../schemas/medicao.schema';
 import MedicaoRepository from '../repositories/MedicaoRepository';
 import { Variavel } from '@prisma/client';
+import EstudoRepository from '../../estudos/repositories/EstudoRepository';
+import StudyStatusValidation from '../../../validation/StudyStatusValidation';
 
 class MedicaoService extends BaseService {
     private studyAuthorization = new StudyAuthorization();
     private visitaRepository = new VisitaRepository();
     private variavelRepository = new VariavelRepository();
     private medicaoRepository = new MedicaoRepository();
+    private estudoRepository = new EstudoRepository();
+    private validacaoStatus = StudyStatusValidation;
 
+    async estudoExiste(estudoId: number) {
+        const estudo = await this.estudoRepository.findById(estudoId);
+        if (!estudo) {
+            throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
+        }
+        return estudo;
+    }
 
     private async visitaExiste(visitaId: number) {
         const visita = await this.visitaRepository.buscaVisitaPorId(visitaId);
@@ -157,9 +168,18 @@ class MedicaoService extends BaseService {
         await this.studyAuthorization.canLinkParticipant(usuarioId, visita.participacaoEstudo.estudoId);
 
         const variavel = await this.variavelExiste(data.variavelId);
+
+
+        const estudo = await this.estudoExiste(variavel.estudoId);
+
+        await this.validacaoStatus.canCollectData(estudo);
+
+
         if (variavel.deletedAt) {
             throw new AppError('VARIAVEL_DELETED', 'Variável encontra-se excluida.', HttpStatus.NOT_FOUND);
         }
+
+
 
         if (variavel.estudoId !== visita.participacaoEstudo.estudoId) {
             throw new AppError('VARIAVEL_NOT_PERTENCE', 'Variável não pertence a este estudo.', HttpStatus.BAD_REQUEST);

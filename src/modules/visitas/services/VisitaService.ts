@@ -1,20 +1,30 @@
 
-import { waitForDebugger } from 'node:inspector';
 import StudyAuthorization from '../../../authorization/StudyAuthorization';
 import { AppError } from '../../../errors/app-error';
 import { BaseService } from '../../../services/base.service';
 import { HttpStatus } from '../../../utils/http-status';
+import StudyStatusValidation from '../../../validation/StudyStatusValidation';
+import EstudoRepository from '../../estudos/repositories/EstudoRepository';
 import ParticipacaoEstudoRepository from '../../participacao_estudo/repositories/ParticipacaoEstudoRepository';
+import TiposVisitaRepository from '../../tipos_visita/repositories/TiposVisitaRepository';
 import VisitaRepository from '../repositories/VisitaRepository';
 import { AtualizarVisitaInput, CriarVisitaInput } from '../schemas/visita.schema';
-import TiposVisitaRepository from '../../tipos_visita/repositories/TiposVisitaRepository';
-import da from 'zod/v4/locales/da.js';
-
 class VisitaService extends BaseService {
     private studyAuthorization = new StudyAuthorization();
     private participacaoRepository = new ParticipacaoEstudoRepository();
     private visitaRepository = new VisitaRepository();
     private tipoVisitaRepository = new TiposVisitaRepository();
+    private estudoRepository = new EstudoRepository();
+    private validacaoStatus = StudyStatusValidation;
+
+
+    async estudoExiste(estudoId: number) {
+        const estudo = await this.estudoRepository.findById(estudoId);
+        if (!estudo) {
+            throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
+        }
+        return estudo;
+    }
 
     private async participacaoExiste(participacaoId: number) {
         const participacao = await this.participacaoRepository.buscaParticipacaoPorId(participacaoId);
@@ -23,6 +33,8 @@ class VisitaService extends BaseService {
         }
         return participacao;
     }
+
+    
 
     async listar(usuarioId: number, participacaoId: number) {
         const participacao = await this.participacaoExiste(participacaoId);
@@ -45,16 +57,21 @@ class VisitaService extends BaseService {
     }
 
     async criar(usuarioId: number, participacaoId: number, data: CriarVisitaInput) {
+        
         const participacao = await this.participacaoExiste(participacaoId);
         if (participacao.deletedAt) {
             throw new AppError('PARTICIPACAO_DELETED', 'Participação encontra-se excluida.', HttpStatus.NOT_FOUND);
         }
         await this.studyAuthorization.canLinkParticipant(usuarioId, participacao.estudoId);
 
+        
         const tipoDeVisita = await this.tipoVisitaRepository.buscaPorId(participacao.estudoId, data.tipoVisitaId);
         if (!tipoDeVisita) {
             throw new AppError('TIPO_VISITA_NOT_FOUND', 'Tipo de visita não encontrado.', HttpStatus.NOT_FOUND);
         }
+        const estudo = await this.estudoExiste(tipoDeVisita.estudoId);
+
+        await this.validacaoStatus.canCollectData(estudo);
 
         if (tipoDeVisita.estudoId !== participacao.estudoId) {
             throw new AppError('TIPO_VISITA_NOT_MATHCES', 'O tipo de visita não pertence a este estudo.', HttpStatus.BAD_REQUEST);

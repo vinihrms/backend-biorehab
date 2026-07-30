@@ -9,13 +9,14 @@ import StudyAuthorization from '../../../authorization/StudyAuthorization';
 import { userInfo } from 'node:os';
 import ParticipanteRepository from '../../participantes/repositories/ParticipanteRepository';
 import VisitaRepository from '../../visitas/repositories/VisitaRepository';
+import StudyStatusValidation from '../../../validation/StudyStatusValidation';
 class ParticipacaoEstudoService extends BaseService {
     private participacaoEstudoRepository = new ParticipacaoEstudoRepository();
     private estudoRepository = new EstudoRepository();
     private studyAuthorization = new StudyAuthorization();
     private participanteRepository = new ParticipanteRepository();
     private visitaRepository = new VisitaRepository();
-
+    private validacaoStatus = StudyStatusValidation;
     async estudoExiste(estudoId: number) {
         const estudo = await this.estudoRepository.findById(estudoId);
         if (!estudo) {
@@ -91,6 +92,8 @@ class ParticipacaoEstudoService extends BaseService {
         const estudo = await this.estudoExiste(estudoId);
         await this.studyAuthorization.canLinkParticipant(usuarioId, estudoId);
 
+        await this.validacaoStatus.canCollectData(estudo);
+
         const codigo = await this.gerarCodigo(estudo.id, estudo.sigla);
 
         const participacaoEstudo = await this.participacaoEstudoRepository.vincularAoEstudo(estudoId, dadosValidados, codigo);
@@ -99,8 +102,10 @@ class ParticipacaoEstudoService extends BaseService {
     }
 
     async desvincularAoEstudo(usuarioId: number, estudoId: number, participanteId: number) {
-        await this.estudoExiste(estudoId);
+        const estudo = await this.estudoExiste(estudoId);
         await this.studyAuthorization.canLinkParticipant(usuarioId, estudoId);
+       
+        await this.validacaoStatus.canCollectData(estudo);
 
         const participacao = await this.participacaoEstudoRepository.buscarPorIdCom(
             estudoId,
