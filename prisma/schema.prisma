@@ -27,11 +27,21 @@ enum Sexo {
   OUTRO
 }
 
+enum StatusEstudo {
+  PLANEJAMENTO
+  EM_ANDAMENTO
+  COLETA_ENCERRADA
+  ARQUIVADO
+}
+
 model Estudo {
   id        Int       @id @default(autoincrement())
   nome      String    @db.VarChar(100)
   sigla     String    @db.VarChar(10)
   descricao String?   @db.Text
+  metaParticipantes Int?
+  status StatusEstudo @default(PLANEJAMENTO)
+
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")

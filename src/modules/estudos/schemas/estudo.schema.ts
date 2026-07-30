@@ -4,6 +4,8 @@ export const criarEstudoSchema = z.object({
   nome: z.string().min(3).max(100),
   sigla: z.string().max(10),
   descricao: z.string().optional(),
+  metaParticipantes: z.number().int().positive().optional()
+
 });
 
 export const atualizarEstudoSchema = criarEstudoSchema.partial();

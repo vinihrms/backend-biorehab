@@ -45,7 +45,7 @@ class EstudoService extends BaseService {
         await this.permissaoEstudoRepository.create(
             estudo.id,
             usuario.id,
-            Papel.owner
+            Papel.owner,
         );
 
         return estudo;

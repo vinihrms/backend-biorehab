@@ -9,7 +9,7 @@ class CsvExporter {
         }
 
         const cabecalho = Object.keys(linhas[0]!);
-          
+        
         const csv = [
             cabecalho.join(","),
             ...linhas.map(linha =>

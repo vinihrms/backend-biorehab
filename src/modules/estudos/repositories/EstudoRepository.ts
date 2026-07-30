@@ -18,6 +18,7 @@ class EstudoRepository extends BaseRepository {
         nome: data.nome,
         sigla: data.sigla,
         descricao: data.descricao ?? null,
+        metaParticipantes: data.metaParticipantes ?? null
       }
     });
   }
@@ -57,7 +58,12 @@ class EstudoRepository extends BaseRepository {
 
     if (data.descricao !== undefined) {
       updateData.descricao = data.descricao;
+    } 
+
+    if (data.metaParticipantes !== undefined) {
+      updateData.metaParticipantes = data.metaParticipantes;
     }
+    
 
     return this.prisma.estudo.update({
       where: {

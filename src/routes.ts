@@ -14,6 +14,7 @@ import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisit
 import VisitaController from './modules/visitas/controllers/VisitaController';
 import MedicaoController from './modules/medicoes/controllers/MedicaoController';
 import ExportController from './modules/export/controllers/ExportController';
+import StatusController from './modules/status/controllers/StatusController';
 
 const routes = Router();
 // ============================================================================
@@ -159,8 +160,13 @@ routes.patch('/api/visitas/:visitaId/medicoes/:medicaoId/restaurar', autenticaca
 // ============================================================================
 // EXPORTAÇÃO
 // ============================================================================
-
 routes.post("/api/estudos/:estudoId/exportar", autenticacaoMiddleware, asyncHandler(ExportController.exportar)
 );
-  
+
+// ============================================================================
+// STATUS ESTUDO
+// ============================================================================
+
+routes.patch('/api/estudos/:estudoId/status', autenticacaoMiddleware, asyncHandler(StatusController.atualizarStatus));
+
 export default routes;
