@@ -58,6 +58,10 @@ class AuthService extends BaseService {
       throw new AppError('CONFIG_ERROR', 'JWT secret not configured.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    if (!usuario.isActive) {
+      throw new AppError('USER_INACTIVE', 'Sua conta está inativa. Entre em contato com o administrador.', HttpStatus.FORBIDDEN);
+    }
+
     const token = jwt.sign({ id: usuario.id, isAdmin: usuario.isAdmin }, secret, { expiresIn: '1d' });
 
     return {

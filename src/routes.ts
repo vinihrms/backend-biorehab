@@ -15,6 +15,7 @@ import VisitaController from './modules/visitas/controllers/VisitaController';
 import MedicaoController from './modules/medicoes/controllers/MedicaoController';
 import ExportController from './modules/export/controllers/ExportController';
 import StatusController from './modules/status/controllers/StatusController';
+import UsuariosPendentesController from './modules/usuarios_pendendes/UsuariosPendentesController';
 
 const routes = Router();
 // ============================================================================
@@ -38,6 +39,15 @@ routes.get(
     );
   }
 );
+
+// ============================================================================
+// USUÁRIOS PENDENTES
+// ============================================================================
+routes.get('/api/usuarios/pendentes', autenticacaoMiddleware, asyncHandler(UsuariosPendentesController.listarTodosPendentes));
+routes.patch('/api/usuarios/pendentes/:usuarioId/aceitar', autenticacaoMiddleware, asyncHandler(UsuariosPendentesController.ativar));
+routes.delete('/api/usuarios/pendentes/:usuarioId/recusar', autenticacaoMiddleware, asyncHandler(UsuariosPendentesController.recusar));
+
+
 
 // ============================================================================
 // ESTUDOS

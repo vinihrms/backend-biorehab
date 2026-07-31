@@ -60,7 +60,7 @@ model Usuario {
   password  String    @db.VarChar(255)
   ra        String    @unique @db.VarChar(6)
   nome      String    @default("") @db.VarChar(150)
-  isActive  Int       @default(1) @map("is_active") @db.TinyInt
+  isActive  Boolean   @default(false) @map("is_active")
   isAdmin   Boolean   @default(false) @map("is_admin")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
