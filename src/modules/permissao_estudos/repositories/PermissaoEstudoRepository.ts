@@ -26,7 +26,11 @@ class PermissaoEstudoRepository extends BaseRepository {
             nome: true,
             email: true,
           },
-        },
+        }, estudo: {
+          select: {
+            nome: true
+          }
+        }
       },
     });
   }

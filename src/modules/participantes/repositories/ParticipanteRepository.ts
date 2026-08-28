@@ -24,7 +24,22 @@ class ParticipanteRepository extends BaseRepository {
   }
 
   async findById(participanteId: number): Promise<Participante | null> {
-    return this.prisma.participante.findFirst({ where: { id: participanteId, deletedAt: null } })
+    return this.prisma.participante.findFirst({
+      where: { id: participanteId, deletedAt: null },
+      include:{
+        participacoes: {
+          include: {
+            estudo: true,
+            visitas: {
+              include: {
+                medicoes: true
+              }
+            }
+          },
+
+        }
+      }
+    })
   }
 
   async update(participanteId: number, data: atualizarParticipanteSchema) {

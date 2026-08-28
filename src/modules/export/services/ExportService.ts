@@ -28,7 +28,7 @@ class ExportService extends BaseService {
             await this.exportRepository.buscarDadosDoEstudo(estudoId);
 
         const linhas =
-            this.exportBuilder.montar(estudo);
+            this.exportBuilder.montar(estudo, data);
 
         switch (data.formato) {
 

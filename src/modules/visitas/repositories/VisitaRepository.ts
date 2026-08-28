@@ -14,7 +14,12 @@ class VisitaRepository extends BaseRepository {
             },
             include: {
                 tipoVisita: true,
-                medicoes: true
+                medicoes: true,
+                participacaoEstudo: {
+                    include: {
+                        participante: true
+                    }
+                }
             },
             orderBy: {
                 data: "asc"
@@ -30,7 +35,8 @@ class VisitaRepository extends BaseRepository {
             include: {
                 participacaoEstudo: {
                     include: {
-                        estudo: true
+                        estudo: true,
+                        participante: true
                     }
                 }
             },

@@ -74,6 +74,10 @@ class ParticipacaoEstudoRepository extends BaseRepository {
             where: {
                 id: participacaoId,
                 deletedAt: null
+            },
+            include: {
+                participante: true,
+                estudo: true
             }
         })
     }
@@ -87,7 +91,8 @@ class ParticipacaoEstudoRepository extends BaseRepository {
                 deletedAt: null
             },
             include: {
-                participante: true
+                participante: true,
+                estudo: true
             }
         });
     }
@@ -117,7 +122,7 @@ class ParticipacaoEstudoRepository extends BaseRepository {
             where: {
                 participanteId,
                 deletedAt: null
-            }
+            },
         });
 
         return total > 0;

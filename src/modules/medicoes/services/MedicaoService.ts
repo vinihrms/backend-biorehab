@@ -200,7 +200,7 @@ class MedicaoService extends BaseService {
 
         return this.medicaoRepository.criar(visitaId, usuarioId, data);
 
-
+        
 
     }
 

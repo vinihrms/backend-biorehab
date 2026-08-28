@@ -11,7 +11,16 @@ class MedicaoRepository extends BaseRepository {
             },
             include: {
                 variavel: true,
-                visita: true
+                visita: {
+                    include: {
+                        tipoVisita: true,
+                        participacaoEstudo: {
+                            include: {
+                                participante: true
+                            }
+                        }
+                    }
+                }
             },
             orderBy: {
                 variavel: {
@@ -30,8 +39,17 @@ class MedicaoRepository extends BaseRepository {
             },
             include: {
                 variavel: true,
-                visita: true
-            }
+                visita: {
+                    include: {
+                        tipoVisita: true,
+                        participacaoEstudo: {
+                            include: {
+                                participante: true
+                            }
+                        }
+                    }
+                }
+            },
         });
     }
 
@@ -54,7 +72,6 @@ class MedicaoRepository extends BaseRepository {
                 variavelId: data.variavelId,
                 valorNum: data.valorNum ?? null,
                 valorText: data.valorText ?? null,
-                lado: data.lado ?? null,
                 createdBy: usuarioId
             }
         });
@@ -70,9 +87,7 @@ class MedicaoRepository extends BaseRepository {
         if (data.valorText !== undefined) {
             updateData.valorText = data.valorText;
         }
-        if (data.lado !== undefined) {
-            updateData.lado = data.lado;
-        }
+
 
         return this.prisma.medicao.update({
             where: {

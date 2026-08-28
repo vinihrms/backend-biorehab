@@ -183,7 +183,6 @@ model Medicao {
   visitaId   Int       @map("visita_id")
   valorNum   Decimal?  @map("valor_num") @db.Decimal(10, 4)
   valorText  String?   @map("valor_text") @db.Text
-  lado       String?   @db.VarChar(1)
   createdBy  Int       @map("created_by")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")

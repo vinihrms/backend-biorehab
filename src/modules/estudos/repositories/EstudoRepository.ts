@@ -1,3 +1,4 @@
+import { Visita } from './../../../../node_modules/.prisma/client/index.d';
 import { Estudo } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
 import { AtualizarEstudoInput, CriarEstudoInput } from '../schemas/estudo.schema';
@@ -24,7 +25,29 @@ class EstudoRepository extends BaseRepository {
   }
 
   async findAll(): Promise<Estudo[]> {
-    return this.prisma.estudo.findMany({ where: { deletedAt: null } });
+    return this.prisma.estudo.findMany({
+      where: { deletedAt: null },
+      include: {
+        variaveis: {
+          where: { deletedAt: null }
+        },
+        tipoVisitas: {
+          where: { deletedAt: null }
+        },
+        permissoes: {
+          where: { deletedAt: null },
+          include: {
+            usuario: {
+              select: {
+                nome: true,
+                ra: true,
+                email: true
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   async findAllByUsario(userId: number): Promise<Estudo[]> {
@@ -36,7 +59,11 @@ class EstudoRepository extends BaseRepository {
           },
         },
         deletedAt: null,
-      },
+      }, include: {
+        variaveis: true,
+        tipoVisitas: true,
+        participacoes: true
+      }
     });
   }
 
@@ -58,12 +85,12 @@ class EstudoRepository extends BaseRepository {
 
     if (data.descricao !== undefined) {
       updateData.descricao = data.descricao;
-    } 
+    }
 
     if (data.metaParticipantes !== undefined) {
       updateData.metaParticipantes = data.metaParticipantes;
     }
-    
+
 
     return this.prisma.estudo.update({
       where: {

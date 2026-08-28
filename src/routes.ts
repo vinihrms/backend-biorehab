@@ -48,7 +48,6 @@ routes.patch('/api/usuarios/pendentes/:usuarioId/aceitar', autenticacaoMiddlewar
 routes.delete('/api/usuarios/pendentes/:usuarioId/recusar', autenticacaoMiddleware, asyncHandler(UsuariosPendentesController.recusar));
 
 
-
 // ============================================================================
 // ESTUDOS
 // ============================================================================

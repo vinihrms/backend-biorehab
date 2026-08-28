@@ -27,7 +27,6 @@ class CsvExporter {
         if (valor === null || valor === undefined) {
             return "";
         }
-
         const texto = String(valor);
 
         if (

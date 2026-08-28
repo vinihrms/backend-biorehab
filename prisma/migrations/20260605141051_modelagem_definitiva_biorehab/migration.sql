@@ -124,7 +124,6 @@ CREATE TABLE `medicoes` (
     `visita_id` INTEGER NOT NULL,
     `valor_num` DECIMAL(10, 4) NULL,
     `valor_text` TEXT NULL,
-    `lado` VARCHAR(1) NULL,
     `created_by` INTEGER NOT NULL,
     `ativo` TINYINT NOT NULL DEFAULT 1,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

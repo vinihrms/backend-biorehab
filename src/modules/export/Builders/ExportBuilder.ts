@@ -1,37 +1,62 @@
-import { LinhaExportacao } from "../schemas/export.schema";
+import { LinhaExportacao, ExportarEstudoInput } from "../schemas/export.schema";
 
 class ExportBuilder {
 
-    montar(estudo: any): LinhaExportacao[] {
+    montar(estudo: any, opcoes: ExportarEstudoInput): LinhaExportacao[] {
+    const linhas: LinhaExportacao[] = [];
 
-        const linhas: LinhaExportacao[] = [];
+    for (const participacao of estudo.participacoes) {
 
-        for (const participacao of estudo.participacoes) {
+        for (const visita of participacao.visitas) {
 
-            for (const visita of participacao.visitas) {
+            if (
+                opcoes.incluirVisitas.length > 0 &&
+                !opcoes.incluirVisitas.includes(visita.tipoVisitaId)
+            ) {
+                continue;
+            }
 
-                const linha: LinhaExportacao = {
-                    codigo: participacao.codigo,
-                    participante: participacao.participante.nome,
-                    sexo: participacao.participante.sexo,
-                    nascimento: participacao.participante.nascimento,
-                    visita: visita.tipoVisita.nome,
-                    data: visita.data
-                };
+            const linha: LinhaExportacao = {};
 
-                for (const medicao of visita.medicoes) {
+            if (opcoes.incluirParticipantes) {
+                linha.codigo = participacao.codigo;
+                linha.sexo = participacao.participante.sexo;
+                linha.nascimento = participacao.participante.nascimento;
+            }
 
-                    linha[medicao.variavel.nome] =
-                        medicao.valorNum ?? medicao.valorText;
+            linha.visita = visita.tipoVisita.nome;
+            linha.data = visita.data;
 
+            let possuiVariavel = false;
+
+            for (const medicao of visita.medicoes) {
+
+                if (
+                    opcoes.incluirVariaveis.length > 0 &&
+                    !opcoes.incluirVariaveis.includes(medicao.variavelId)
+                ) {
+                    continue;
                 }
 
-                linhas.push(linha);
-            }
-        }
+                linha[medicao.variavel.nome] =
+                    medicao.valorNum ?? medicao.valorText;
 
-        return linhas;
+                possuiVariavel = true;
+            }
+
+            if (
+                opcoes.incluirVariaveis.length > 0 &&
+                !possuiVariavel
+            ) {
+                continue;
+            }
+
+            linhas.push(linha);
+        }
     }
+
+    return linhas;
+}
 
 }
 
