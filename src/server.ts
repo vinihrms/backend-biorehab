@@ -1,8 +1,10 @@
-import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import routes from './routes';
+import express from 'express';
 import errorMiddleware from './middlewares/error.middleware';
+import routes from './routes';
+import { HttpStatus } from './utils/http-status';
+import { sendError } from './utils/response';
 
 dotenv.config();
 
@@ -21,6 +23,17 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     message: 'Backend do BioRehab Lab online!'
   });
+});
+
+app.use((_req, res) => {
+  return sendError(
+    res,
+    {
+      code: 'RESOURCE_NOT_FOUND',
+      message: 'Recurso não encontrado.'
+    },
+    HttpStatus.NOT_FOUND
+  );
 });
 
 app.listen(PORT, () => {

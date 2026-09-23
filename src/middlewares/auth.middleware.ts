@@ -20,30 +20,30 @@ export default function autenticacaoMiddleware(
   const loginHeader = req.headers.authorization;
 
   if (!loginHeader) {
-    return next(new AppError('AUTH_TOKEN_MISSING', 'Auth token not provided.', HttpStatus.UNAUTHORIZED));
+    return next(new AppError('AUTH_TOKEN_MISSING', 'Não foi possível autenticar a solicitação.', HttpStatus.UNAUTHORIZED));
   }
 
   const partes = loginHeader.split(' ');
 
   if (partes.length !== 2) {
-    return next(new AppError('AUTH_TOKEN_MALFORMED', 'Auth token malformed.', HttpStatus.UNAUTHORIZED));
+    return next(new AppError('AUTH_TOKEN_MALFORMED', 'Não foi possível autenticar a solicitação.', HttpStatus.UNAUTHORIZED));
   }
 
   const esquema = partes[0];
   const token = partes[1];
 
   if (!esquema || !token) {
-    return next(new AppError('AUTH_TOKEN_MALFORMED', 'Auth token malformed.', HttpStatus.UNAUTHORIZED));
+    return next(new AppError('AUTH_TOKEN_MALFORMED', 'Não foi possível autenticar a solicitação.', HttpStatus.UNAUTHORIZED));
   }
 
   if (!/^Bearer$/i.test(esquema)) {
-    return next(new AppError('AUTH_TOKEN_MALFORMED', 'Auth token malformed.', HttpStatus.UNAUTHORIZED));
+    return next(new AppError('AUTH_TOKEN_MALFORMED', 'Não foi possível autenticar a solicitação.', HttpStatus.UNAUTHORIZED));
   }
 
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
-    return next(new AppError('CONFIG_ERROR', 'JWT secret not configured.', HttpStatus.INTERNAL_SERVER_ERROR));
+    return next(new AppError('CONFIG_ERROR', 'Erro interno do servidor.', HttpStatus.INTERNAL_SERVER_ERROR));
   }
 
   try {
@@ -51,7 +51,7 @@ export default function autenticacaoMiddleware(
     const decoded = jwt.verify(token, jwtSecret);
 
     if (!decoded || typeof decoded === 'string') {
-      throw new AppError('INVALID_TOKEN', 'Invalid or expired token.', HttpStatus.UNAUTHORIZED);
+      throw new AppError('INVALID_TOKEN', 'Não foi possível autenticar a solicitação.', HttpStatus.UNAUTHORIZED);
     }
 
     const payload = decoded as JwtPayload;
@@ -67,6 +67,6 @@ export default function autenticacaoMiddleware(
 
     return next();
   } catch (err) {
-    return next(new AppError('INVALID_TOKEN', 'Invalid or expired token.', HttpStatus.UNAUTHORIZED));
+    return next(new AppError('INVALID_TOKEN', 'Não foi possível autenticar a solicitação.', HttpStatus.UNAUTHORIZED));
   }
 }
