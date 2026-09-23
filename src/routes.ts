@@ -40,6 +40,15 @@ routes.get(
   }
 );
 
+routes.get('/api/ping', (req, res) => {
+  res.status(200).json({ 
+    status: "success",
+    message: "pong",
+    timestamp: new Date().toISOString()
+  });
+});
+
+
 // ============================================================================
 // USUÁRIOS PENDENTES
 // ============================================================================
