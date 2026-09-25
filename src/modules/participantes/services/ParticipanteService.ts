@@ -10,11 +10,15 @@ class ParticipanteService extends BaseService {
 
     async create(data: CriarParticipanteInput, userId: number) {
         //const usuario = await this.adminAuthorization.isAdmin(userId);
+        
+        /*
         const participanteExistente = await this.participanteRepository.findByName(data.nome);
 
         if (participanteExistente) {
             throw new AppError('CONFLICT', 'Este participante já está cadastrado.', HttpStatus.CONFLICT);
         }
+
+        */
         if (data.nascimento > new Date()) {
             throw new AppError(
                 'INVALID_BIRTH_DATE',

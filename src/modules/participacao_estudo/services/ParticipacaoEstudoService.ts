@@ -96,6 +96,15 @@ class ParticipacaoEstudoService extends BaseService {
 
         const codigo = await this.gerarCodigo(estudo.id, estudo.sigla);
 
+        const participacao = await this.participacaoEstudoRepository.buscaParticipacao(estudo.id, dadosValidados.participanteId);
+        if (participacao) {
+            throw new AppError(
+                'PARTICIPACAO_ALREADY_EXISTS',
+                'Participante já está vinculado a este estudo.',
+                HttpStatus.CONFLICT
+            );
+        }
+
         const participacaoEstudo = await this.participacaoEstudoRepository.vincularAoEstudo(estudoId, dadosValidados, codigo);
 
         return participacaoEstudo;
