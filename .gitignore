@@ -3,8 +3,16 @@ node_modules
 .env
 .env*
 .env.local
+*.yaml
+
+# Agentic
+AGENTS.md
+FRONTEND_CONTEXT.md
+USER_DELETION_REVIEW.md
 
 /src/generated/prisma
+
+prototype/
 
 seed/
 
