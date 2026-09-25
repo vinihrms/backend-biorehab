@@ -155,7 +155,8 @@ class VisitaRepository extends BaseRepository {
     async existePorParticipacao(participacaoId: number) {
     return this.prisma.visita.findFirst({
         where: {
-            participacaoEstudoId: participacaoId
+            participacaoEstudoId: participacaoId,
+            deletedAt: null
         },
         select: {
             id: true
