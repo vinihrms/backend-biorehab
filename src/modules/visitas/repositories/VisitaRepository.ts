@@ -1,7 +1,4 @@
-import { CriarMedicaoInput } from './../../medicoes/schemas/medicao.schema';
-import { Variavel, ParticipacaoEstudo } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
-import { number } from 'zod';
 import { AtualizarVisitaInput, CriarVisitaInput } from '../schemas/visita.schema';
 
 class VisitaRepository extends BaseRepository {
@@ -84,13 +81,14 @@ class VisitaRepository extends BaseRepository {
     }
 
     async criar(participacaoId: number, usuarioId: number, data: CriarVisitaInput) {
+        const usuario = await this.prisma.usuario.findUniqueOrThrow({ where: { id: usuarioId } });
         return this.prisma.visita.create({
             data: {
                 participacaoEstudoId: participacaoId,
                 tipoVisitaId: data.tipoVisitaId,
                 data: data.data,
                 notes: data.notes ?? null,
-                createdBy: usuarioId
+                createdBy: usuario.nome
             }
         });
     }

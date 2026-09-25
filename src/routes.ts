@@ -1,21 +1,22 @@
-import { Router } from 'express';
 import type { Response } from 'express';
+import { Router } from 'express';
 import autenticacaoMiddleware, { RequestAutenticado } from './middlewares/auth.middleware';
 import authController from './modules/auth/controllers/AuthController';
+import estudoController from './modules/estudos/controllers/EstudoController';
+import ExportController from './modules/export/controllers/ExportController';
+import MedicaoController from './modules/medicoes/controllers/MedicaoController';
+import ParticipacaoEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
+import ParticipanteController from './modules/participantes/controllers/ParticipanteController';
+import PermissaoEstudoController from './modules/permissao_estudos/controllers/PermissaoEstudoController';
+import StatusController from './modules/status/controllers/StatusController';
+import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisitaController';
+import usuarioController from './modules/usuarios/controllers/UsuarioController';
+import UsuariosPendentesController from './modules/usuarios_pendendes/UsuariosPendentesController';
+import VariavelController from './modules/variaveis/controllers/VariavelController';
+import VisitaController from './modules/visitas/controllers/VisitaController';
 import asyncHandler from './utils/async-handler';
 import { HttpStatus } from './utils/http-status';
 import { sendSuccess } from './utils/response';
-import estudoController from './modules/estudos/controllers/EstudoController';
-import PermissaoEstudoController from './modules/permissao_estudos/controllers/PermissaoEstudoController';
-import ParticipanteController from './modules/participantes/controllers/ParticipanteController';
-import VariavelController from './modules/variaveis/controllers/VariavelController';
-import ParticipacaoEstudoController from './modules/participacao_estudo/controllers/ParticipacaoEstudoController';
-import TiposVisitaController from './modules/tipos_visita/controllers/TiposVisitaController';
-import VisitaController from './modules/visitas/controllers/VisitaController';
-import MedicaoController from './modules/medicoes/controllers/MedicaoController';
-import ExportController from './modules/export/controllers/ExportController';
-import StatusController from './modules/status/controllers/StatusController';
-import UsuariosPendentesController from './modules/usuarios_pendendes/UsuariosPendentesController';
 
 const routes = Router();
 // ============================================================================
@@ -55,6 +56,10 @@ routes.get('/api/ping', (req, res) => {
 routes.get('/api/usuarios/pendentes', autenticacaoMiddleware, asyncHandler(UsuariosPendentesController.listarTodosPendentes));
 routes.patch('/api/usuarios/pendentes/:usuarioId/aceitar', autenticacaoMiddleware, asyncHandler(UsuariosPendentesController.ativar));
 routes.delete('/api/usuarios/pendentes/:usuarioId/recusar', autenticacaoMiddleware, asyncHandler(UsuariosPendentesController.recusar));
+routes.get('/api/usuarios', autenticacaoMiddleware, asyncHandler(usuarioController.listar));
+routes.get('/api/usuarios/:usuarioId', autenticacaoMiddleware, asyncHandler(usuarioController.buscarPorId));
+routes.patch('/api/usuarios/:usuarioId', autenticacaoMiddleware, asyncHandler(usuarioController.atualizar));
+routes.delete('/api/usuarios/:usuarioId', autenticacaoMiddleware, asyncHandler(usuarioController.excluir));
 
 
 // ============================================================================

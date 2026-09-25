@@ -66,13 +66,14 @@ class MedicaoRepository extends BaseRepository {
     }
 
     async criar(visitaId: number, usuarioId: number, data: CriarMedicaoInput) {
+        const usuario = await this.prisma.usuario.findUniqueOrThrow({ where: { id: usuarioId } });
         return this.prisma.medicao.create({
             data: {
                 visitaId,
                 variavelId: data.variavelId,
                 valorNum: data.valorNum ?? null,
                 valorText: data.valorText ?? null,
-                createdBy: usuarioId
+                createdBy: usuario.nome
             }
         });
     }
