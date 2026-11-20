@@ -39,6 +39,8 @@ class AuthService extends BaseService {
     });
   }
 
+
+  
   async login(data: LoginInput): Promise<LoginResponse> {
     const usuario = await this.usuarioRepository.findByEmail(data.email);
 
