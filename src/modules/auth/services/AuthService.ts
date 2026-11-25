@@ -14,6 +14,7 @@ type LoginResponse = {
     email: string;
     ra: string;
     isAdmin: boolean;
+    canCreateStudy: boolean;
   };
   token: string;
 };
@@ -73,6 +74,7 @@ class AuthService extends BaseService {
         email: usuario.email,
         ra: usuario.ra,
         isAdmin: usuario.isAdmin,
+        canCreateStudy: usuario.canCreateStudy,
       },
       token,
     };

@@ -13,11 +13,14 @@ enum DataType {
   boolean
   text
   choice
+  calculated
 }
 
 enum Papel {
   owner
+  study_admin
   collector
+  interventionist
   viewer
 }
 
@@ -34,47 +37,62 @@ enum StatusEstudo {
   ARQUIVADO
 }
 
+enum StatusCandidato {
+  PENDENTE
+  CONTATADO
+  APROVADO
+  RECUSADO
+}
+
 model Estudo {
-  id        Int       @id @default(autoincrement())
-  nome      String    @db.VarChar(100)
-  sigla     String    @db.VarChar(10)
-  descricao String?   @db.Text
-  metaParticipantes Int?
-  status StatusEstudo @default(PLANEJAMENTO)
+  id                     Int          @id @default(autoincrement())
+  nome                   String       @db.VarChar(100)
+  sigla                  String       @db.VarChar(10)
+  descricao              String?      @db.Text
+  metaParticipantes      Int?
+  status                 StatusEstudo @default(PLANEJAMENTO)
+  estudoCego             Boolean      @default(false) @map("estudo_cego")
+  cegamentoQuebradoEm    DateTime?    @map("cegamento_quebrado_em")
+  cegamentoQuebradoPorId Int?         @map("cegamento_quebrado_por_id")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  tipoVisitas   TipoVisita[]
-  variaveis     Variavel[]
-  participacoes ParticipacaoEstudo[]
-  permissoes    PermissaoEstudo[]
+  tipoVisitas            TipoVisita[]
+  variaveis              Variavel[]
+  participacoes          ParticipacaoEstudo[]
+  permissoes             PermissaoEstudo[]
+  grupos                 GrupoEstudo[]
+  formularioRecrutamento FormularioRecrutamento?
+  candidatos             CandidatoEstudo[]
+  importacoes            ImportacaoLog[]
 
   @@map("estudos")
 }
 
 model Usuario {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique @db.VarChar(254)
-  password  String    @db.VarChar(255)
-  ra        String    @unique @db.VarChar(6)
-  nome      String    @default("") @db.VarChar(150)
-  isActive  Boolean   @default(false) @map("is_active")
-  isAdmin   Boolean   @default(false) @map("is_admin")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  id             Int       @id @default(autoincrement())
+  email          String    @unique @db.VarChar(254)
+  password       String    @db.VarChar(255)
+  ra             String    @unique @db.VarChar(6)
+  nome           String    @default("") @db.VarChar(150)
+  isActive       Boolean   @default(false) @map("is_active")
+  isAdmin        Boolean   @default(false) @map("is_admin")
+  canCreateStudy Boolean   @default(false) @map("can_create_study")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
 
-  permissoes      PermissaoEstudo[]
+  permissoes PermissaoEstudo[]
 
   @@map("usuarios")
 }
 
 model Participante {
   id         Int       @id @default(autoincrement())
-  nome       String    @db.VarChar(30)
-  telefone   String    @db.VarChar(20)
+  nome       String    @db.VarChar(150)
+  telefone   String?   @db.VarChar(20)
   sexo       Sexo
   nascimento DateTime  @db.Date
   createdAt  DateTime  @default(now()) @map("created_at")
@@ -87,32 +105,42 @@ model Participante {
 }
 
 model TipoVisita {
-  id        Int       @id @default(autoincrement())
-  nome      String    @db.VarChar(100)
-  descricao String?    @db.VarChar(200)
-  estudoId  Int       @map("estudo_id")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  id                   Int       @id @default(autoincrement())
+  nome                 String    @db.VarChar(100)
+  descricao            String?   @db.VarChar(200)
+  ordem                Int       @default(0)
+  estudoId             Int       @map("estudo_id")
+  catalogoTipoVisitaId Int?      @map("catalogo_tipo_visita_id")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
 
-  estudo  Estudo   @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  visitas Visita[]
+  estudo             Estudo              @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  catalogoTipoVisita CatalogoTipoVisita? @relation(fields: [catalogoTipoVisitaId], references: [id], onDelete: SetNull)
+  visitas            Visita[]
 
   @@map("tipo_visitas")
 }
 
 model Variavel {
-  id        Int       @id @default(autoincrement())
-  nome      String    @db.VarChar(100)
-  unidade   String?   @db.VarChar(20)
-  dataType  DataType  @default(numeric) @map("data_type")
-  options   String?   @db.Text
-  estudoId  Int       @map("estudo_id")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-  estudo    Estudo    @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  medicoes  Medicao[]
+  id                 Int       @id @default(autoincrement())
+  nome               String    @db.VarChar(100)
+  unidade            String?   @db.VarChar(20)
+  dataType           DataType  @default(numeric) @map("data_type")
+  allowMultiple      Boolean   @default(false) @map("allow_multiple")
+  options            String?   @db.Text
+  ordem              Int       @default(0)
+  formula            String?   @db.Text
+  casasDecimais      Int?      @default(2) @map("casas_decimais")
+  estudoId           Int       @map("estudo_id")
+  catalogoVariavelId Int?      @map("catalogo_variavel_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  estudo           Estudo            @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  catalogoVariavel CatalogoVariavel? @relation(fields: [catalogoVariavelId], references: [id], onDelete: SetNull)
+  medicoes         Medicao[]
 
   @@map("variaveis")
 }
@@ -130,27 +158,26 @@ model Visita {
 
   participacaoEstudo ParticipacaoEstudo @relation(fields: [participacaoEstudoId], references: [id], onDelete: Restrict)
   tipoVisita         TipoVisita         @relation(fields: [tipoVisitaId], references: [id], onDelete: Restrict)
-  medicoes       Medicao[]
+  medicoes           Medicao[]
+
   @@unique([participacaoEstudoId, tipoVisitaId])
-
-
   @@map("visitas")
 }
 
 model ParticipacaoEstudo {
-  id             Int    @id @default(autoincrement())
-  estudoId       Int    @map("estudo_id")
-  participanteId Int    @map("participante_id")
-  codigo         String @db.VarChar(20)
+  id             Int       @id @default(autoincrement())
+  estudoId       Int       @map("estudo_id")
+  participanteId Int       @map("participante_id")
+  codigo         String    @db.VarChar(20)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-
-  estudo       Estudo       @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  participante Participante @relation(fields: [participanteId], references: [id], onDelete: Restrict)
-
-  visitas Visita[]
+  estudo       Estudo                @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  participante Participante          @relation(fields: [participanteId], references: [id], onDelete: Restrict)
+  visitas      Visita[]
+  alocacao     AlocacaoGrupo?
+  intervencoes RegistroIntervencao[]
 
   @@unique([estudoId, participanteId])
   @@unique([estudoId, codigo])
@@ -186,5 +213,147 @@ model Medicao {
 
   variavel Variavel @relation(fields: [variavelId], references: [id], onDelete: Cascade)
   visita   Visita   @relation(fields: [visitaId], references: [id], onDelete: Cascade)
+
   @@map("medicoes")
+}
+
+model GrupoEstudo {
+  id              Int       @id @default(autoincrement())
+  estudoId        Int       @map("estudo_id")
+  nome            String    @db.VarChar(100)
+  descricaoMetodo String?   @map("descricao_metodo") @db.Text
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  estudo       Estudo                @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  alocacoes    AlocacaoGrupo[]
+  intervencoes RegistroIntervencao[]
+
+  @@map("grupos_estudo")
+}
+
+model AlocacaoGrupo {
+  id                   Int       @id @default(autoincrement())
+  participacaoEstudoId Int       @unique @map("participacao_estudo_id")
+  grupoEstudoId        Int       @map("grupo_estudo_id")
+  alocadoPorId         Int       @map("alocado_por_id")
+  alocadoPorNome       String    @map("alocado_por_nome") @db.VarChar(150)
+  observacoes          String?   @db.Text
+  quebradoEm           DateTime? @map("quebrado_em")
+  quebradoPorId        Int?      @map("quebrado_por_id")
+  quebradoPorNome      String?   @map("quebrado_por_nome") @db.VarChar(150)
+  motivoQuebra         String?   @map("motivo_quebra") @db.Text
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  participacaoEstudo ParticipacaoEstudo @relation(fields: [participacaoEstudoId], references: [id], onDelete: Cascade)
+  grupoEstudo        GrupoEstudo        @relation(fields: [grupoEstudoId], references: [id], onDelete: Restrict)
+
+  @@map("alocacoes_grupo")
+}
+
+model RegistroIntervencao {
+  id                   Int       @id @default(autoincrement())
+  participacaoEstudoId Int       @map("participacao_estudo_id")
+  grupoEstudoId        Int       @map("grupo_estudo_id")
+  data                 DateTime  @db.Date
+  realizadoPor         String    @map("realizado_por") @db.VarChar(150)
+  notas                String?   @db.Text
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
+
+  participacaoEstudo ParticipacaoEstudo @relation(fields: [participacaoEstudoId], references: [id], onDelete: Restrict)
+  grupoEstudo        GrupoEstudo        @relation(fields: [grupoEstudoId], references: [id], onDelete: Restrict)
+
+  @@map("registros_intervencao")
+}
+
+model CatalogoVariavel {
+  id            Int       @id @default(autoincrement())
+  nome          String    @unique @db.VarChar(100)
+  unidade       String?   @db.VarChar(20)
+  dataType      DataType  @default(numeric) @map("data_type")
+  allowMultiple Boolean   @default(false) @map("allow_multiple")
+  options       String?   @db.Text
+  descricao     String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  variaveis Variavel[]
+
+  @@map("catalogo_variaveis")
+}
+
+model CatalogoTipoVisita {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique @db.VarChar(100)
+  descricao String?   @db.VarChar(200)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  tipoVisitas TipoVisita[]
+
+  @@map("catalogo_tipos_visita")
+}
+
+model FormularioRecrutamento {
+  id            Int      @id @default(autoincrement())
+  estudoId      Int      @unique @map("estudo_id")
+  tokenPublico  String   @unique @map("token_publico") @db.VarChar(64)
+  ativo         Boolean  @default(true)
+  titulo        String   @db.VarChar(150)
+  descricao     String?  @db.Text
+  camposTriagem Json?    @map("campos_triagem")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  estudo     Estudo            @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  candidatos CandidatoEstudo[]
+
+  @@map("formularios_recrutamento")
+}
+
+model CandidatoEstudo {
+  id               Int             @id @default(autoincrement())
+  estudoId         Int             @map("estudo_id")
+  formularioId     Int             @map("formulario_id")
+  nome             String          @db.VarChar(150)
+  telefone         String?         @db.VarChar(20)
+  email            String?         @db.VarChar(254)
+  sexo             Sexo
+  nascimento       DateTime        @db.Date
+  respostasTriagem Json?           @map("respostas_triagem")
+  status           StatusCandidato @default(PENDENTE)
+  notasContato     String?         @map("notas_contato") @db.Text
+  participanteId   Int?            @map("participante_id")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  estudo     Estudo                 @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  formulario FormularioRecrutamento @relation(fields: [formularioId], references: [id], onDelete: Cascade)
+
+  @@map("candidatos_estudo")
+}
+
+model ImportacaoLog {
+  id                   Int      @id @default(autoincrement())
+  estudoId             Int      @map("estudo_id")
+  usuarioId            Int      @map("usuario_id")
+  usuarioNome          String   @map("usuario_nome") @db.VarChar(150)
+  nomeArquivo          String   @map("nome_arquivo") @db.VarChar(255)
+  layout               String   @db.VarChar(10)
+  participantesCriados Int      @default(0) @map("participantes_criados")
+  visitasCriadas       Int      @default(0) @map("visitas_criadas")
+  medicoesCriadas      Int      @default(0) @map("medicoes_criadas")
+  linhasIgnoradas      Int      @default(0) @map("linhas_ignoradas")
+  resumo               Json?
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  estudo Estudo @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+
+  @@map("importacoes_log")
 }

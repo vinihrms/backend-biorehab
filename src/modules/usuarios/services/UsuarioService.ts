@@ -49,6 +49,7 @@ class UsuarioService extends BaseService {
 		if (data.nome !== undefined) updateData.nome = data.nome;
 		if (data.isActive !== undefined) updateData.isActive = data.isActive;
 		if (data.isAdmin !== undefined) updateData.isAdmin = data.isAdmin;
+		if (data.canCreateStudy !== undefined) updateData.canCreateStudy = data.canCreateStudy;
 		if (data.password) {
 			updateData.password = await bcrypt.hash(data.password, 10);
 		}
@@ -65,6 +66,26 @@ class UsuarioService extends BaseService {
 			throw new AppError('USER_NOT_FOUND', 'Usuário não encontrado.', HttpStatus.NOT_FOUND);
 		}
 		await this.usuarioRepository.delete(usuarioId);
+	}
+
+	async buscarAtivos(usuarioLogadoId: number, termo?: string) {
+		const usuario = await this.usuarioRepository.findById(usuarioLogadoId);
+		if (!usuario) {
+			throw new AppError('USER_NOT_FOUND', 'Usuário não encontrado.', HttpStatus.NOT_FOUND);
+		}
+
+		if (!usuario.isAdmin && !usuario.canCreateStudy) {
+			const gerenciaAlgum = await this.usuarioRepository.podeGerenciarAlgumEstudo(usuarioLogadoId);
+			if (!gerenciaAlgum) {
+				throw new AppError(
+					'FORBIDDEN',
+					'Apenas administradores ou responsáveis por estudos podem buscar usuários.',
+					HttpStatus.FORBIDDEN,
+				);
+			}
+		}
+
+		return this.usuarioRepository.buscarAtivos(termo);
 	}
 }
 

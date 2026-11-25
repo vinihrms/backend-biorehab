@@ -1,27 +1,21 @@
-import type { Request, Response } from "express";
-
-import ExportService from "../services/ExportService";
-
-import { exportarEstudoSchema } from "../schemas/export.schema";
+import type { Request, Response } from 'express';
+import { exportarEstudoSchema } from '../schemas/export.schema';
+import ExportService from '../services/ExportService';
 
 class ExportController {
+  private exportService = new ExportService();
 
-    private exportService = new ExportService();
+  exportar = async (req: Request, res: Response): Promise<Response> => {
+    const estudoId = Number(req.params.estudoId);
+    const dados = exportarEstudoSchema.parse(req.body);
 
-    exportar = async (req: Request, res: Response): Promise<Response> => {
+    const resultado = await this.exportService.exportar(req.usuarioLogado.id, estudoId, dados);
 
-        const estudoId = Number(req.params.estudoId);
+    res.setHeader('Content-Type', resultado.contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${resultado.filename}"`);
 
-        const dados = exportarEstudoSchema.parse(req.body);
-
-        const csv = await this.exportService.exportar(req.usuarioLogado.id, estudoId, dados);
-
-        res.setHeader("Content-Type", "text/csv; charset=utf-8");
-
-        res.setHeader("Content-Disposition",`attachment; filename="estudo-${estudoId}.csv"`);
-
-        return res.send(csv);
-    };
+    return res.send(resultado.content);
+  };
 }
 
 export default new ExportController();

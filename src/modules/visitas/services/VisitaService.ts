@@ -62,7 +62,7 @@ class VisitaService extends BaseService {
         if (participacao.deletedAt) {
             throw new AppError('PARTICIPACAO_DELETED', 'Participação encontra-se excluida.', HttpStatus.NOT_FOUND);
         }
-        await this.studyAuthorization.canLinkParticipant(usuarioId, participacao.estudoId);
+        await this.studyAuthorization.canCollectMeasurements(usuarioId, participacao.estudoId);
 
         
         const tipoDeVisita = await this.tipoVisitaRepository.buscaPorId(participacao.estudoId, data.tipoVisitaId);
@@ -109,7 +109,7 @@ class VisitaService extends BaseService {
             throw new AppError('PARTICIPACAO_DELETED', 'Participação encontra-se excluida.', HttpStatus.NOT_FOUND);
         }
 
-        await this.studyAuthorization.canLinkParticipant(usuarioId, participacao.estudoId);
+        await this.studyAuthorization.canCollectMeasurements(usuarioId, participacao.estudoId);
 
         const visita = await this.visitaRepository.buscaPorId(participacaoId, visitaId);
         if (!visita) {
@@ -125,7 +125,7 @@ class VisitaService extends BaseService {
             throw new AppError('PARTICIPACAO_DELETED', 'Participação encontra-se excluida.', HttpStatus.NOT_FOUND);
         }
 
-        await this.studyAuthorization.canLinkParticipant(usuarioId, participacao.estudoId);
+        await this.studyAuthorization.canCollectMeasurements(usuarioId, participacao.estudoId);
 
         const visita = await this.visitaRepository.buscaPorId(participacaoId, visitaId);
         if (!visita) {
@@ -141,7 +141,7 @@ class VisitaService extends BaseService {
             throw new AppError('PARTICIPACAO_DELETED', 'Participação encontra-se excluida.', HttpStatus.NOT_FOUND);
         }
 
-        await this.studyAuthorization.canLinkParticipant(usuarioId, participacao.estudoId);
+        await this.studyAuthorization.canCollectMeasurements(usuarioId, participacao.estudoId);
 
         const visita = await this.visitaRepository.buscaPorIdComDeletado(participacaoId, visitaId);
         if (!visita) {

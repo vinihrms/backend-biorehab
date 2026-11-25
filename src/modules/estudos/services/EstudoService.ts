@@ -23,7 +23,18 @@ class EstudoService extends BaseService {
     private validacaoStatus = StudyStatusValidation;
 
     async create(data: CriarEstudoInput, userId: number) {
-        const usuario = await this.adminAuthorization.isAdmin(userId);
+        const usuario = await this.usuarioRepositorio.findById(userId);
+        if (!usuario) {
+            throw new AppError('USER_NOT_FOUND', 'Usuário não encontrado.', HttpStatus.NOT_FOUND);
+        }
+
+        if (!usuario.isAdmin && !usuario.canCreateStudy) {
+            throw new AppError(
+                'FORBIDDEN',
+                'Você não tem permissão para criar novos estudos.',
+                HttpStatus.FORBIDDEN
+            );
+        }
 
         const estudoExistente = await this.estudoRepository.findByName(data.nome);
 
@@ -65,14 +76,22 @@ class EstudoService extends BaseService {
         }
 
         if (usuario.isAdmin) {
-            return this.estudoRepository.findAll();
+            const estudos = await this.estudoRepository.findAll();
+            return estudos.map((estudo) => ({
+                ...estudo,
+                meuPapel: estudo.permissoes.find((p) => p.usuarioId === userId)?.papel ?? null,
+            }));
         }
 
-        return this.estudoRepository.findAllByUsario(userId);
+        const estudos = await this.estudoRepository.findAllByUsario(userId);
+        return estudos.map(({ permissoes, ...estudo }) => ({
+            ...estudo,
+            meuPapel: permissoes[0]?.papel ?? null,
+        }));
     }
 
     async getById(userId: number, estudoId: number) {
-        await this.studyAuthorization.canView(userId, estudoId);
+        const access = await this.studyAuthorization.canView(userId, estudoId);
 
         const estudo = await this.estudoRepository.findById(estudoId);
 
@@ -80,7 +99,10 @@ class EstudoService extends BaseService {
             throw new AppError('STUDY_NOT_FOUND', 'Estudo não encontrado.', HttpStatus.NOT_FOUND);
         }
 
-        return estudo;
+        return {
+            ...estudo,
+            meuPapel: access.papel ?? null,
+        };
     }
 
     async atualizarEstudo(userId: number, estudoId: number, data: AtualizarEstudoInput) {
@@ -133,9 +155,16 @@ class EstudoService extends BaseService {
 
 
     async buscarExcluidos(userId: number) {
-        await this.usuarioRepositorio.findById(userId);
-        await this.adminAuthorization.isAdmin(userId);
-        return this.estudoRepository.findAllExcluidos();
+        const usuario = await this.usuarioRepositorio.findById(userId);
+        if (!usuario) {
+            throw new AppError('USER_NOT_FOUND', 'Usuário não encontrado.', HttpStatus.NOT_FOUND);
+        }
+
+        if (usuario.isAdmin) {
+            return this.estudoRepository.findAllExcluidos();
+        }
+
+        return this.estudoRepository.findAllExcluidosByUser(userId);
     }
 
 

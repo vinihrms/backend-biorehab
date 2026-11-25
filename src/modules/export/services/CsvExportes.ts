@@ -1,44 +1,52 @@
-import { LinhaExportacao } from "../schemas/export.schema";
+import { LinhaExportacao } from '../schemas/export.schema';
 
 class CsvExporter {
+  exportar(
+    colunas: string[],
+    linhas: LinhaExportacao[],
+    separador: ';' | ',' = ';'
+  ): string {
+    const bom = '\uFEFF';
 
-    exportar(linhas: LinhaExportacao[]): string {
-
-        if (linhas.length === 0) {
-            return "";
-        }
-
-        const cabecalho = Object.keys(linhas[0]!);
-        
-        const csv = [
-            cabecalho.join(","),
-            ...linhas.map(linha =>
-                cabecalho
-                    .map(coluna => this.escapar(linha[coluna]))
-                    .join(",")
-            )
-        ];
-
-        return csv.join("\n");
+    if (colunas.length === 0) {
+      return bom;
     }
 
-    private escapar(valor: unknown): string {
+    const csv = [
+      colunas.map((c) => this.escapar(c, separador)).join(separador),
+      ...linhas.map((linha) =>
+        colunas.map((coluna) => this.escapar(linha[coluna], separador)).join(separador)
+      ),
+    ];
 
-        if (valor === null || valor === undefined) {
-            return "";
-        }
-        const texto = String(valor);
+    return bom + csv.join('\r\n');
+  }
 
-        if (
-            texto.includes(",") ||
-            texto.includes('"') ||
-            texto.includes("\n")
-        ) {
-            return `"${texto.replace(/"/g, '""')}"`;
-        }
+  private formatarDataIso(data: Date): string {
+    const ano = data.getUTCFullYear();
+    const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
+    const dia = String(data.getUTCDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
 
-        return texto;
+  private escapar(valor: unknown, separador: ';' | ','): string {
+    if (valor === null || valor === undefined) {
+      return '';
     }
+
+    const texto = valor instanceof Date ? this.formatarDataIso(valor) : String(valor);
+
+    if (
+      texto.includes(separador) ||
+      texto.includes('"') ||
+      texto.includes('\n') ||
+      texto.includes('\r')
+    ) {
+      return `"${texto.replace(/"/g, '""')}"`;
+    }
+
+    return texto;
+  }
 }
 
 export default CsvExporter;

@@ -8,6 +8,7 @@ const usuarioPublicSelect = {
   nome: true,
   isActive: true,
   isAdmin: true,
+  canCreateStudy: true,
   createdAt: true,
 } satisfies Prisma.UsuarioSelect;
 
@@ -68,6 +69,44 @@ class UsuarioRepository extends BaseRepository {
 
   async delete(id: number): Promise<void> {
     await this.prisma.usuario.delete({ where: { id } });
+  }
+
+  async buscarAtivos(termo?: string) {
+    const q = termo?.trim();
+    return this.prisma.usuario.findMany({
+      where: {
+        isActive: true,
+        deletedAt: null,
+        ...(q
+          ? {
+              OR: [
+                { nome: { contains: q } },
+                { email: { contains: q } },
+                { ra: { contains: q } },
+              ],
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        ra: true,
+      },
+      orderBy: { nome: 'asc' },
+      take: 50,
+    });
+  }
+
+  async podeGerenciarAlgumEstudo(userId: number): Promise<boolean> {
+    const count = await this.prisma.permissaoEstudo.count({
+      where: {
+        usuarioId: userId,
+        deletedAt: null,
+        papel: { in: ['owner', 'study_admin'] },
+      },
+    });
+    return count > 0;
   }
 }
 

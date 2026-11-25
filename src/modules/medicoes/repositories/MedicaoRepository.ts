@@ -22,11 +22,10 @@ class MedicaoRepository extends BaseRepository {
                     }
                 }
             },
-            orderBy: {
-                variavel: {
-                    nome: 'asc'
-                }
-            }
+            orderBy: [
+                { variavel: { ordem: 'asc' } },
+                { variavel: { id: 'asc' } },
+            ]
         });
     }
 
@@ -129,11 +128,10 @@ class MedicaoRepository extends BaseRepository {
             include: {
                 variavel: true
             },
-            orderBy: {
-                variavel: {
-                    nome: 'asc'
-                }
-            }
+            orderBy: [
+                { variavel: { ordem: 'asc' } },
+                { variavel: { id: 'asc' } },
+            ]
         });
     }
 

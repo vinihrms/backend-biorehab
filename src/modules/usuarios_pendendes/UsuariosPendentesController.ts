@@ -22,7 +22,13 @@ class UsuariosPendentesController {
 
     ativar = async (req: Request, res: Response): Promise<Response> => {
         const usuarioId = Number(req.params.usuarioId);
-        const usuarioAtivo = await this.usuariosPendentesService.ativar(req.usuarioLogado.id, usuarioId)
+        const canCreateStudy =
+            typeof req.body?.canCreateStudy === 'boolean' ? req.body.canCreateStudy : undefined;
+        const usuarioAtivo = await this.usuariosPendentesService.ativar(
+            req.usuarioLogado.id,
+            usuarioId,
+            canCreateStudy
+        );
         return sendSuccess(
             res,
             {

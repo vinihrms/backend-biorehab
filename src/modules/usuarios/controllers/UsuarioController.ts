@@ -16,6 +16,12 @@ class UsuarioController {
     return sendSuccess(res, { data: usuarios }, HttpStatus.OK);
   };
 
+  buscarAtivos = async (req: Request, res: Response): Promise<Response> => {
+    const q = typeof req.query.q === 'string' ? req.query.q : undefined;
+    const usuarios = await this.usuarioService.buscarAtivos(req.usuarioLogado.id, q);
+    return sendSuccess(res, { data: usuarios }, HttpStatus.OK);
+  };
+
   buscarPorId = async (req: Request, res: Response): Promise<Response> => {
     const usuario = await this.usuarioService.buscarPorId(
       (req as Request & { usuarioLogado: { id: number } }).usuarioLogado.id,

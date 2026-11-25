@@ -14,7 +14,7 @@ class UsuariosPendentesService extends BaseService {
         return this.usuariosPendentesRepository.findAll();
     }
 
-    async ativar(userLogadoId: number, userId: number) {
+    async ativar(userLogadoId: number, userId: number, canCreateStudy?: boolean) {
         await this.adminAuthorization.isAdmin(userLogadoId);
 
         const usuarioQueSeraAtivado = await this.usuariosPendentesRepository.findById(userId);
@@ -26,7 +26,7 @@ class UsuariosPendentesService extends BaseService {
             );
         }
 
-        await this.usuariosPendentesRepository.ativar(userId);
+        return this.usuariosPendentesRepository.ativar(userId, canCreateStudy);
     }
 
     async recusar(userLogadoId: number, userId: number) {

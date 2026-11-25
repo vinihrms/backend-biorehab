@@ -12,7 +12,7 @@ class ParticipanteRepository extends BaseRepository {
     return this.prisma.participante.create({
       data: {
         nome: data.nome,
-        telefone: data.telefone,
+        telefone: data.telefone ?? null,
         sexo: data.sexo,
         nascimento: data.nascimento,
       }
@@ -54,7 +54,7 @@ class ParticipanteRepository extends BaseRepository {
       updateData.nascimento = data.nascimento;
     }
     if (data.telefone !== undefined) {
-      updateData.telefone = data.telefone;
+      updateData.telefone = data.telefone ?? null;
     }
 
     return this.prisma.participante.update({

@@ -1,4 +1,8 @@
-import { atualizarTipoVisita, CriarTipoVisitaInput, } from '../schemas/tipos_visita.schema';
+import {
+  atualizarTipoVisita,
+  CriarTipoVisitaInput,
+  ReordenarTiposVisitaInput,
+} from '../schemas/tipos_visita.schema';
 import { AppError } from '../../../errors/app-error';
 import { BaseService } from '../../../services/base.service';
 import { HttpStatus } from '../../../utils/http-status';
@@ -40,9 +44,11 @@ class TiposVisitaService extends BaseService {
             throw new AppError('CONFLICT', 'Este tipo de visita já existe para este estudo.', HttpStatus.CONFLICT);
         }
 
+        const ordemFinal = dadosValidados.ordem ?? (await this.tiposVisitaRepository.getNextOrdem(estudoId));
         const tipoVisita = await this.tiposVisitaRepository.criar(
             estudoId,
-            dadosValidados
+            dadosValidados,
+            ordemFinal
         );
 
         return tipoVisita;
@@ -142,6 +148,26 @@ class TiposVisitaService extends BaseService {
 
         return this.tiposVisitaRepository.restaura(tipoVisitaId);
 
+    }
+
+    async reordenar(userId: number, estudoId: number, data: ReordenarTiposVisitaInput) {
+        await this.studyAuthorization.estudoExiste(estudoId);
+        await this.studyAuthorization.canManageStudy(userId, estudoId);
+
+        const existentes = await this.tiposVisitaRepository.listaTodosPorEstudo(estudoId);
+        const idsValidos = new Set(existentes.map((t) => t.id));
+
+        for (const item of data.itens) {
+            if (!idsValidos.has(item.id)) {
+                throw new AppError(
+                    'TIPO_VISITA_NOT_FOUND',
+                    `Tipo de visita ID ${item.id} não pertence a este estudo.`,
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+        }
+
+        return this.tiposVisitaRepository.reordenar(estudoId, data.itens);
     }
 
 

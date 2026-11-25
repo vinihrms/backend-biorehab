@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import prisma from '../config/prisma';
 import { AppError } from '../errors/app-error';
 import { HttpStatus } from '../utils/http-status';
 
@@ -12,7 +13,7 @@ type JwtPayload = {
   exp?: number;
 };
 
-export default function autenticacaoMiddleware(
+export default async function autenticacaoMiddleware(
   req: RequestAutenticado,
   _res: Response,
   next: NextFunction
@@ -60,9 +61,29 @@ export default function autenticacaoMiddleware(
       throw new AppError('INVALID_TOKEN', 'Invalid or expired token.', HttpStatus.UNAUTHORIZED);
     }
 
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: payload.id },
+      select: {
+        id: true,
+        isAdmin: true,
+        isActive: true,
+        canCreateStudy: true,
+        deletedAt: true,
+      },
+    });
+
+    if (!usuario || usuario.deletedAt !== null) {
+      return next(new AppError('INVALID_TOKEN', 'Usuário não encontrado ou removido.', HttpStatus.UNAUTHORIZED));
+    }
+
+    if (!usuario.isActive) {
+      return next(new AppError('USER_INACTIVE', 'Sua conta está inativa. Entre em contato com o administrador.', HttpStatus.FORBIDDEN));
+    }
+
     req.usuarioLogado = {
-      id: payload.id,
-      isAdmin: payload.isAdmin
+      id: usuario.id,
+      isAdmin: usuario.isAdmin,
+      canCreateStudy: usuario.canCreateStudy,
     };
 
     return next();

@@ -2,7 +2,11 @@ import type { Request, Response } from 'express';
 import { HttpStatus } from '../../../utils/http-status';
 import { sendSuccess } from '../../../utils/response';
 import VariavelService from '../services/VariavelService';
-import { atualizarVariavelSchema, criarVariavelSchema } from '../schemas/variavel.schema';
+import {
+  atualizarVariavelSchema,
+  criarVariavelSchema,
+  reordenarVariaveisSchema,
+} from '../schemas/variavel.schema';
 import { number } from 'zod';
 
 class VariavelController {
@@ -111,6 +115,24 @@ class VariavelController {
       HttpStatus.OK
     );
   }
+
+  reordenar = async (req: Request, res: Response): Promise<Response> => {
+    const estudoId = Number(req.params.estudoId);
+    const dadosValidados = reordenarVariaveisSchema.parse(req.body);
+    const variaveis = await this.variavelService.reordenar(
+      req.usuarioLogado.id,
+      estudoId,
+      dadosValidados
+    );
+    return sendSuccess(
+      res,
+      {
+        data: variaveis,
+        message: 'Ordem das variáveis atualizada com sucesso!',
+      },
+      HttpStatus.OK
+    );
+  };
 
 }
 export default new VariavelController();

@@ -53,7 +53,7 @@ class PermissaoEstudoService extends BaseService {
         if (data.papel === Papel.owner) {
             throw new AppError(
                 'INVALID_PERMISSION',
-                'Não é permitido criar outro proprietário.',
+                'Não é permitido criar outro proprietário. Utilize o papel study_admin para co-administradores do projeto.',
                 HttpStatus.CONFLICT
             );
         }
@@ -89,7 +89,7 @@ class PermissaoEstudoService extends BaseService {
         if (data.papel === Papel.owner) {
             throw new AppError(
                 'INVALID_PERMISSION',
-                'Não é permitido criar outro proprietário.',
+                'Não é permitido criar outro proprietário. Utilize o papel study_admin para co-administradores do projeto.',
                 HttpStatus.CONFLICT
             );
         }

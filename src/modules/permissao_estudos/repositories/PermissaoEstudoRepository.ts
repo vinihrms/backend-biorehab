@@ -18,6 +18,7 @@ class PermissaoEstudoRepository extends BaseRepository {
     return this.prisma.permissaoEstudo.findMany({
       where: {
         estudoId,
+        deletedAt: null,
       },
       include: {
         usuario: {
@@ -40,6 +41,7 @@ class PermissaoEstudoRepository extends BaseRepository {
       where: {
         usuarioId,
         estudoId,
+        deletedAt: null,
       },
     });
   }

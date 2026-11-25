@@ -7,6 +7,7 @@ export const atualizarUsuarioSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres.').max(150).optional(),
   isActive: z.boolean().optional(),
   isAdmin: z.boolean().optional(),
+  canCreateStudy: z.boolean().optional(),
 });
 
 export type AtualizarUsuarioInput = z.infer<typeof atualizarUsuarioSchema>;

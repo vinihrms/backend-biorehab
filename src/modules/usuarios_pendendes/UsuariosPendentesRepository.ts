@@ -27,13 +27,23 @@ class UsuariosPendentesRepository extends BaseRepository {
         });
     };
 
-    async ativar(userId: number){
+    async ativar(userId: number, canCreateStudy?: boolean){
         return await this.prisma.usuario.update({
             where: {
                 id: userId
             },
             data: {
-                isActive: true
+                isActive: true,
+                ...(canCreateStudy !== undefined ? { canCreateStudy } : {}),
+            },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                ra: true,
+                isActive: true,
+                isAdmin: true,
+                canCreateStudy: true,
             }
         })
     }

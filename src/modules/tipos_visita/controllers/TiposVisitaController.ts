@@ -1,4 +1,8 @@
-import { atualizarTipoVisita, criarTipoVisita } from './../schemas/tipos_visita.schema';
+import {
+  atualizarTipoVisita,
+  criarTipoVisita,
+  reordenarTiposVisitaSchema,
+} from './../schemas/tipos_visita.schema';
 import type { Request, Response } from 'express';
 import { HttpStatus } from '../../../utils/http-status';
 import { sendSuccess } from '../../../utils/response';
@@ -106,6 +110,24 @@ class TiposVisitaController {
       HttpStatus.OK
     );
   }
+
+  reordenar = async (req: Request, res: Response): Promise<Response> => {
+    const estudoId = Number(req.params.estudoId);
+    const dadosValidados = reordenarTiposVisitaSchema.parse(req.body);
+    const tiposVisita = await this.tiposVisitaService.reordenar(
+      req.usuarioLogado.id,
+      estudoId,
+      dadosValidados
+    );
+    return sendSuccess(
+      res,
+      {
+        data: tiposVisita,
+        message: 'Ordem dos tipos de visita atualizada com sucesso!',
+      },
+      HttpStatus.OK
+    );
+  };
 
 }
 
