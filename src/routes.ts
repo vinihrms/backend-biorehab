@@ -5,6 +5,7 @@ import { uploadPlanilhaMiddleware } from './middlewares/upload.middleware';
 import authController from './modules/auth/controllers/AuthController';
 import CatalogoController from './modules/catalogo/controllers/CatalogoController';
 import CegamentoController from './modules/cegamento/controllers/CegamentoController';
+import dashboardController from './modules/dashboard/controllers/DashboardController';
 import estudoController from './modules/estudos/controllers/EstudoController';
 import ExportController from './modules/export/controllers/ExportController';
 import ImportacaoController from './modules/importacao/controllers/ImportacaoController';
@@ -131,6 +132,12 @@ routes.delete(
   autenticacaoMiddleware,
   asyncHandler(CatalogoController.deletarTipoVisita)
 );
+
+// ============================================================================
+// DASHBOARD
+// ============================================================================
+
+routes.get('/api/dashboard', autenticacaoMiddleware, asyncHandler(dashboardController.obter));
 
 // ============================================================================
 // ESTUDOS

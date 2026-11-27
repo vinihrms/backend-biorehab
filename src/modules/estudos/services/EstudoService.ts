@@ -67,7 +67,7 @@ class EstudoService extends BaseService {
 
     async listaEstudos(userId: number) {
         const usuario = await this.usuarioRepositorio.findById(userId);
-        if (!usuario) {
+        if (!usuario || usuario.deletedAt !== null) {
             throw new AppError(
                 'USER_NOT_FOUND',
                 'Usuário não encontrado.',
@@ -75,18 +75,38 @@ class EstudoService extends BaseService {
             );
         }
 
+        const estudosRaw = usuario.isAdmin
+            ? await this.estudoRepository.findAll()
+            : await this.estudoRepository.findAllByUsario(userId);
+
+        const studyIds = estudosRaw.map((e) => e.id);
+        const tipoVisitaToEstudo = new Map<number, number>();
+        for (const estudo of estudosRaw) {
+            for (const tv of estudo.tipoVisitas) {
+                tipoVisitaToEstudo.set(tv.id, estudo.id);
+            }
+        }
+
+        const resumos = await this.estudoRepository.getResumosPorEstudos(studyIds, tipoVisitaToEstudo);
+        const emptyResumo = {
+            participacoesAtivas: 0,
+            visitasAtivas: 0,
+            candidatosPendentes: 0,
+            ultimaVisitaEm: null,
+        };
+
         if (usuario.isAdmin) {
-            const estudos = await this.estudoRepository.findAll();
-            return estudos.map((estudo) => ({
+            return estudosRaw.map((estudo) => ({
                 ...estudo,
                 meuPapel: estudo.permissoes.find((p) => p.usuarioId === userId)?.papel ?? null,
+                resumo: resumos.get(estudo.id) ?? emptyResumo,
             }));
         }
 
-        const estudos = await this.estudoRepository.findAllByUsario(userId);
-        return estudos.map(({ permissoes, ...estudo }) => ({
+        return estudosRaw.map(({ permissoes, ...estudo }) => ({
             ...estudo,
             meuPapel: permissoes[0]?.papel ?? null,
+            resumo: resumos.get(estudo.id) ?? emptyResumo,
         }));
     }
 

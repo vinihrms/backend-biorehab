@@ -1,6 +1,7 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import docsRouter from './openapi/docs.router';
 import errorMiddleware from './middlewares/error.middleware';
 import routes from './routes';
 import { HttpStatus } from './utils/http-status';
@@ -24,6 +25,8 @@ app.get('/api/health', (req, res) => {
     message: 'Backend do BioRehab Lab online!'
   });
 });
+
+app.use(docsRouter);
 
 app.use((_req, res) => {
   return sendError(

@@ -1,6 +1,13 @@
-import { Estudo, Papel } from '@prisma/client';
+import { Estudo, Papel, StatusCandidato } from '@prisma/client';
 import { BaseRepository } from '../../../repositories/base.repository';
 import { AtualizarEstudoInput, CriarEstudoInput } from '../schemas/estudo.schema';
+
+export type EstudoResumo = {
+  participacoesAtivas: number;
+  visitasAtivas: number;
+  candidatosPendentes: number;
+  ultimaVisitaEm: Date | null;
+};
 
 class EstudoRepository extends BaseRepository {
   async findByName(nome: string): Promise<Estudo | null> {
@@ -146,6 +153,95 @@ class EstudoRepository extends BaseRepository {
       where: { id: estudoId },
       data: { deletedAt: null },
     });
+  }
+
+  /**
+   * Calcula os contadores resumidos de uma lista de estudos em lote (sem N+1),
+   * respeitando soft-delete em todas as entidades envolvidas.
+   */
+  async getResumosPorEstudos(
+    studyIds: number[],
+    tipoVisitaToEstudo: Map<number, number>
+  ): Promise<Map<number, EstudoResumo>> {
+    const resumos = new Map<number, EstudoResumo>();
+    for (const studyId of studyIds) {
+      resumos.set(studyId, {
+        participacoesAtivas: 0,
+        visitasAtivas: 0,
+        candidatosPendentes: 0,
+        ultimaVisitaEm: null,
+      });
+    }
+
+    if (studyIds.length === 0) {
+      return resumos;
+    }
+
+    const [participacoesAgrupadas, visitasAgrupadas, candidatosAgrupados] = await Promise.all([
+      this.prisma.participacaoEstudo.groupBy({
+        by: ['estudoId'],
+        where: {
+          estudoId: { in: studyIds },
+          deletedAt: null,
+          participante: { deletedAt: null },
+        },
+        _count: { _all: true },
+      }),
+      this.prisma.visita.groupBy({
+        by: ['tipoVisitaId'],
+        where: {
+          deletedAt: null,
+          tipoVisita: {
+            deletedAt: null,
+            estudoId: { in: studyIds },
+          },
+          participacaoEstudo: {
+            deletedAt: null,
+            estudoId: { in: studyIds },
+            participante: { deletedAt: null },
+          },
+        },
+        _count: { _all: true },
+        _max: { data: true },
+      }),
+      this.prisma.candidatoEstudo.groupBy({
+        by: ['estudoId'],
+        where: {
+          estudoId: { in: studyIds },
+          status: StatusCandidato.PENDENTE,
+        },
+        _count: { _all: true },
+      }),
+    ]);
+
+    for (const row of participacoesAgrupadas) {
+      const resumo = resumos.get(row.estudoId);
+      if (resumo) {
+        resumo.participacoesAtivas = row._count._all;
+      }
+    }
+
+    for (const row of visitasAgrupadas) {
+      const estudoId = tipoVisitaToEstudo.get(row.tipoVisitaId);
+      if (estudoId === undefined) continue;
+      const resumo = resumos.get(estudoId);
+      if (!resumo) continue;
+
+      resumo.visitasAtivas += row._count._all;
+      const maxData = row._max.data;
+      if (maxData && (!resumo.ultimaVisitaEm || maxData > resumo.ultimaVisitaEm)) {
+        resumo.ultimaVisitaEm = maxData;
+      }
+    }
+
+    for (const row of candidatosAgrupados) {
+      const resumo = resumos.get(row.estudoId);
+      if (resumo) {
+        resumo.candidatosPendentes = row._count._all;
+      }
+    }
+
+    return resumos;
   }
 }
 
